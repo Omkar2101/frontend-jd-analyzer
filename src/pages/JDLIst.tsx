@@ -13,8 +13,10 @@ interface JDItem {
 const JDList: React.FC = () => {
   const [jdList, setJdList] = useState<JDItem[]>([])
 
+  const email = localStorage.getItem('userEmail') || '';
+
   useEffect(() => {
-    axios.get('http://localhost:5268/api/jobs') // Update URL to your actual backend route
+    axios.get(`http://localhost:5268/api/jobs/user/${email}`) // Update URL to your actual backend route
       .then((res) => setJdList(res.data))
       .catch((err) => console.error(err))
   }, [])

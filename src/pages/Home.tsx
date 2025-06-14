@@ -16,7 +16,8 @@ function Home() {
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [inputMethod, setInputMethod] = useState<'text' | 'file'>('text'); // Track active input method
+  const [inputMethod, setInputMethod] = useState<'text' | 'file'>('text');
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const result = useSelector((state: RootState) => state.result.data);
@@ -37,24 +38,78 @@ function Home() {
       return;
     }
 
+    const userEmail = localStorage.getItem('userEmail');
+    if (!userEmail) {
+      toast.error('Please log in first');
+      return;
+    }
+
     try {
+      setIsLoading(true);
       let res;
       if (inputMethod === 'text' && text.trim()) {
-        res = await axios.post("http://localhost:5268/api/jobs/analyze", { text });
+        res = await axios.post("http://localhost:5268/api/jobs/analyze", { 
+          text,
+          userEmail 
+        });
       } else if (inputMethod === 'file' && file) {
         const formData = new FormData();
         formData.append("file", file);
+        formData.append("userEmail", userEmail);
         res = await axios.post("http://localhost:5268/api/jobs/upload", formData);
       } else {
         toast.error('Please provide a job description');
         return;
       }
       
-      console.log(res.data.analysis);
       dispatch(setResult(res.data));
-    } catch (error) {
-      toast.error('Error analyzing JD. Please try again.');
+      navigate('/result');
+    } catch (error: any) {
+      const errorMessage = error.response?.data || 'Error analyzing JD. Please try again.';
+      toast.error(errorMessage);
       console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!isLoggedIn()) {
+      setShowLoginPrompt(true);
+      return;
+    }
+
+    const userEmail = localStorage.getItem('userEmail');
+    
+    try {
+      setIsLoading(true); // Start loading
+      
+      if (inputMethod === 'file' && file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('userEmail', userEmail || '');
+
+        const response = await axios.post('http://localhost:5155/api/jobs/upload', formData);
+        dispatch(setResult(response.data));
+        navigate('/result');
+      } else if (inputMethod === 'text' && text) {
+        // For text input, create a blob and send as file
+        const blob = new Blob([text], { type: 'text/plain' });
+        const textFile = new File([blob], 'input.txt', { type: 'text/plain' });
+        
+        const formData = new FormData();
+        formData.append('file', textFile);
+        formData.append('userEmail', userEmail || '');
+
+        const response = await axios.post('http://localhost:5155/api/jobs/upload', formData);
+        dispatch(setResult(response.data));
+        navigate('/result');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Error uploading file');
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -123,6 +178,14 @@ function Home() {
       </div>
       {showLoginPrompt && (
         <LoginPrompt onClose={() => setShowLoginPrompt(false)} />
+      )}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-5 rounded-lg flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-gray-700">Analyzing Job Description...</p>
+          </div>
+        </div>
       )}
     </>
   );
