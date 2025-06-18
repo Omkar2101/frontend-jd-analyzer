@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import type { RootState } from '../store/store';
-import html2pdf from 'html2pdf.js';
 import '../styles/analysis.css';
 
 const Analysis: React.FC = () => {
@@ -23,19 +22,8 @@ const Analysis: React.FC = () => {
       </div>
     );
   }
-
-  const downloadPDF = () => {
-    const content = document.getElementById('analysis-content');
-    if (content) {
-      const opt = {
-        margin: 1,
-        filename: 'jd-analysis.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(content).save();
-    }
+  const handleDownload = () => {
+    navigate('/download');
   };
 
   const getScoreColor = (score: number) => {
@@ -151,11 +139,8 @@ const Analysis: React.FC = () => {
             ))}
           </div>
         </div>
-      )}
-
-      {/* Download Button */}
-      <div className="text-center mt-4 mb-5">
-        <button onClick={downloadPDF} className="btn btn-success btn-lg">
+      )}      {/* Download Button */}
+      <div className="text-center mt-4 mb-5 no-print">        <button onClick={handleDownload} className="btn btn-success btn-lg">
           <i className="bi bi-download me-2"></i>
           Download Analysis Report (PDF)
         </button>

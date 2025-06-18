@@ -57,8 +57,27 @@
     page-break-inside: avoid;
     margin-bottom: 20px;
   }
-  
-  .btn {
-    display: none;
+
+  /* Hide all buttons and download elements */
+  .btn,
+  button,
+  [class*="download"],
+  .no-print,
+  .text-center.mt-4.mb-5 {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    position: absolute !important;
+    pointer-events: none !important;
+    clip: rect(0, 0, 0, 0) !important;
+  }
+
+  /* Ensure print layout is clean */
+  #analysis-content {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 }
