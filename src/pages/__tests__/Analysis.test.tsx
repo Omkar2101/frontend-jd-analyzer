@@ -88,6 +88,41 @@ describe('Analysis', () => {
     
     expect(screen.getByText(/detected issues/i)).toBeInTheDocument()
     expect(screen.getByText(/gender bias/i)).toBeInTheDocument()
-    expect(screen.getByText(/guys/i)).toBeInTheDocument()
+    
+    // More specific query to find the "guys" text in the issues section
+    const issuesSection = screen.getByText(/detected issues/i).closest('.card')
+    expect(issuesSection).toContainElement(screen.getByText('"guys"'))
+    
+    // Alternative approach: Use getAllByText and verify count
+    // const guysElements = screen.getAllByText(/guys/i)
+    // expect(guysElements).toHaveLength(2) // One in issues, one in suggestions
+  })
+
+  it('displays improvement suggestions', () => {
+    const store = createMockStore(mockAnalysisData)
+    
+    render(
+      <Provider store={store}>
+        <Analysis />
+      </Provider>
+    )
+    
+    expect(screen.getByText(/improvement suggestions/i)).toBeInTheDocument()
+    expect(screen.getByText(/looking for guys to join our team/i)).toBeInTheDocument()
+    expect(screen.getByText(/looking for people to join our team/i)).toBeInTheDocument()
+  })
+
+  it('displays SEO keywords', () => {
+    const store = createMockStore(mockAnalysisData)
+    
+    render(
+      <Provider store={store}>
+        <Analysis />
+      </Provider>
+    )
+    
+    expect(screen.getByText(/seo keywords to add in the text/i)).toBeInTheDocument()
+    expect(screen.getByText('software engineer')).toBeInTheDocument()
+    expect(screen.getByText('react developer')).toBeInTheDocument()
   })
 })
