@@ -100,7 +100,7 @@ const AnalysisDetail: React.FC = () => {
     return (
       <div className="container mt-5 text-center">
         <h3>Analysis not found</h3>
-        <Link to="/jds" className="btn btn-primary mt-3">Back to Job Listings</Link>
+        {/* <Link to="/jds" className="btn btn-primary mt-3">Back to Job Listings</Link> */}
       </div>
     );
   }
@@ -110,7 +110,7 @@ const AnalysisDetail: React.FC = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Job Description Analysis</h2>
         <div>
-          <Link to="/jds" className="btn btn-outline-primary me-2">Back to Listings</Link>
+          {/* <Link to="/jds" className="btn btn-outline-primary me-2">Back to Listings</Link> */}
           <Link to="/" className="btn btn-outline-primary">Analyze New JD</Link>
         </div>
       </div>
