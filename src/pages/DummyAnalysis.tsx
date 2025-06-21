@@ -61,7 +61,7 @@ const DummyAnalysis: React.FC = () => {
     <div className="container py-4" id="analysis-content">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Job Description Analysis (Dummy)</h2>
-        <Link to="/" className="btn btn-outline-primary">Go Home</Link>
+      
       </div>
 
       {/* Score Overview */}

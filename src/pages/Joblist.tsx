@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 interface Job {
@@ -21,6 +21,7 @@ const JobList: React.FC = () => {
   const [jobs, setJobs] = useState<Job[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate();
 
   const email = localStorage.getItem('userEmail') || '';
 
@@ -106,9 +107,10 @@ const JobList: React.FC = () => {
       </div>
 
       <div className="row">
-        {jobs.map((job) => (
-          <div className="col-md-6 mb-4" key={job.id}>
-            <div className="card h-100 shadow-sm">
+        {jobs.map((job) => (          <div className="col-md-6 mb-4" key={job.id}>
+            <div className="card h-100 shadow-sm" 
+                 style={{ cursor: 'pointer' }} 
+                 onClick={() => navigate(`/analysis/${job.id}`)}>
               <div className="card-body">
                 <h5 className="card-title">{job.fileName || 'Untitled Job'}</h5>
                 <div className="mb-3">
