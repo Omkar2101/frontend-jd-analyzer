@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import html2pdf from 'html2pdf.js';
-import '../styles/analysis.css';
+import '../styles/analysis.css'
 
 interface JobDescription {
   id: string;

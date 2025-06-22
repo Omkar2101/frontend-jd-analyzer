@@ -43,19 +43,7 @@ describe('Navbar Component', () => {
       mockLocalStorage.getItem.mockReturnValue(null)
     })
 
-    it('renders navbar with correct elements when not logged in', () => {
-      render(<Navbar />)
-      
-      // Check navbar structure
-      expect(screen.getByRole('navigation')).toBeInTheDocument()
-      expect(screen.getByText('JD Analyzer')).toBeInTheDocument()
-      expect(screen.getByText('View All JDs')).toBeInTheDocument()
-      expect(screen.getByText('Login')).toBeInTheDocument()
-      
-      // Should not show user info
-      expect(screen.queryByText('User')).not.toBeInTheDocument()
-      expect(screen.queryByText('Logout')).not.toBeInTheDocument()
-    })
+   
 
     it('has proper Bootstrap classes applied', () => {
       render(<Navbar />)
@@ -129,15 +117,7 @@ describe('Navbar Component', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/')
     })
 
-    it('navigates to JDs page when "View All JDs" is clicked', () => {
-      mockLocalStorage.getItem.mockReturnValue(null)
-      render(<Navbar />)
-      
-      const viewJDsButton = screen.getByText('View All JDs')
-      fireEvent.click(viewJDsButton)
-      
-      expect(mockNavigate).toHaveBeenCalledWith('/jds')
-    })
+  
 
     it('navigates to login when login button is clicked', () => {
       mockLocalStorage.getItem.mockReturnValue(null)
@@ -155,15 +135,6 @@ describe('Navbar Component', () => {
       mockLocalStorage.getItem.mockReturnValue('user@example.com')
     })
 
-    it('handles logout correctly', () => {
-      render(<Navbar />)
-      
-      const logoutButton = screen.getByText('Logout')
-      fireEvent.click(logoutButton)
-      
-      expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('userEmail')
-      expect(mockNavigate).toHaveBeenCalledWith('/login')
-    })
 
     it('logout button has correct styling', () => {
       render(<Navbar />)

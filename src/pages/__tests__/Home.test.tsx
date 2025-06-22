@@ -277,7 +277,7 @@ describe('Home', () => {
     const analyzeButton = screen.getByRole('button', { name: /analyze/i })
     fireEvent.click(analyzeButton)
     
-    // Wait for error to be shown
+    // Wait for error to be shown/
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(errorMessage)
     })

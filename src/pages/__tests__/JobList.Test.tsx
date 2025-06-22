@@ -22,6 +22,7 @@ const mockJobs = [
   }
 ]
 
+
 describe('JobList', () => {
   beforeEach(() => {
     vi.clearAllMocks()
