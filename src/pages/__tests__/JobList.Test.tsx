@@ -43,9 +43,9 @@ describe('JobList', () => {
     render(<JobList />)
     
     await waitFor(() => {
-      expect(screen.getByText(/your job listings/i)).toBeInTheDocument()
-      expect(screen.getByText(/job1.txt/i)).toBeInTheDocument()
-      expect(screen.getByText(/bias score: 0.8/i)).toBeInTheDocument()
+      expect(screen.getByText(/your job listings/i)).toBeInTheDocument();
+      expect(screen.getByText(/job1.txt/i)).toBeInTheDocument();
+      expect(screen.getByText(/bias score: 0.8/i)).toBeInTheDocument();
     })
   })
 
