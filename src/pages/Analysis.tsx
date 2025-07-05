@@ -1,43 +1,30 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import type { RootState } from '../store/store';
-import html2pdf from 'html2pdf.js';
 import '../styles/analysis.css';
 
-const Download: React.FC = () => {
+const Analysis: React.FC = () => {
   const navigate = useNavigate();
   const result = useSelector((state: RootState) => state.result.data);
 
   useEffect(() => {
     if (!result) {
       navigate('/');
-      return;
     }
-
-    // Automatically trigger download when component mounts
-    const downloadPDF = () => {
-      const content = document.getElementById('analysis-content');
-      if (content) {
-        const opt = {
-          margin: 1,
-          filename: 'jd-analysis.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(content).save().then(() => {
-          // Navigate back to analysis page after download starts
-          setTimeout(() => {
-            navigate('/analysis');
-          }, 1000);
-        });
-      }
-    };
-
-    // Small delay to ensure content is rendered
-    setTimeout(downloadPDF, 500);
   }, [result, navigate]);
+
+  if (!result) {
+    return (
+      <div className="container mt-5 text-center">
+        <h3>No analysis data available</h3>
+        <Link to="/" className="btn btn-primary mt-3">Analyze New Job Description</Link>
+      </div>
+    );
+  }
+  const handleDownload = () => {
+    navigate('/download');
+  };
 
   const getScoreColor = (score: number) => {
     if (score >= 0.8) return 'success';
@@ -45,13 +32,13 @@ const Download: React.FC = () => {
     return 'danger';
   };
 
-  if (!result) {
-    return null;
-  }
 
   return (
     <div className="container py-4" id="analysis-content">
-      <h2 className="mb-4">Job Description Analysis</h2>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2>Job Description Analysis</h2>
+        <Link to="/" className="btn btn-outline-primary">Analyze New JD</Link>
+      </div>
 
       {/* Score Overview */}
       <div className="row mb-4">
@@ -134,7 +121,6 @@ const Download: React.FC = () => {
           </div>
         </div>
       )}
-
       {/* Seo keywords */}
       {result.seo_keywords && result.seo_keywords.length > 0 && (
         <div className="card mb-4">
@@ -144,15 +130,23 @@ const Download: React.FC = () => {
           <div className="card-body">
             {result.seo_keywords.map((seo_keyword: any, index: number) => (
               <div key={index} className="mb-3 p-3 border-bottom">
+                
                 <p className="mb-3 bg-light p-2 rounded">{seo_keyword}</p>
+                
+                
+                
               </div>
             ))}
           </div>
         </div>
-      )}
+      )}      {/* Download Button */}
+      <div className="text-center mt-4 mb-5 no-print">        <button onClick={handleDownload} className="btn btn-success btn-lg">
+          <i className="bi bi-download me-2"></i>
+          Download Analysis Report (PDF)
+        </button>
+      </div>
     </div>
   );
 };
 
-export default Download;
-
+export default Analysis;

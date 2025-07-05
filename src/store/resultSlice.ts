@@ -20,8 +20,12 @@ export const resultSlice = createSlice({
       state.data = action.payload.analysis
       state.updatedJD = action.payload.updated_jd
     },
+    clearResult: (state) => {
+      state.data = null;
+      state.updatedJD = '';
+    },
   },
 })
 
-export const { setResult } = resultSlice.actions
+export const { setResult, clearResult } = resultSlice.actions
 export default resultSlice.reducer
