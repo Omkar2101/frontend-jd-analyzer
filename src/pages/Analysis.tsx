@@ -27,9 +27,11 @@ const Analysis: React.FC = () => {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 0.8) return 'success';
-    if (score >= 0.6) return 'warning';
-    return 'danger';
+    // For bias score, lower is better (less bias)
+    // For clarity and inclusivity scores, higher is better
+    if (score >= 0.8) return 'danger';     // High bias - Red
+    if (score >= 0.6) return 'warning';    // Medium bias - Yellow
+    return 'success';                       // Low bias - Green
   };
 
 
