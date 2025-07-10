@@ -97,6 +97,20 @@ const JobList: React.FC = () => {
     )
   }
 
+  // Delete handler
+  const handleDelete = async (e: React.MouseEvent, jobId: string) => {
+    e.stopPropagation();
+    if (!window.confirm('Are you sure you want to delete this job description?')) return;
+    try {
+      await axios.delete(`http://localhost:5268/api/jobs/${jobId}`);
+      setJobs((prev) => prev.filter((job) => job.id !== jobId));
+      toast.success('Job deleted successfully');
+    } catch (err) {
+      toast.error('Failed to delete job');
+      console.error(err);
+    }
+  };
+
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -107,10 +121,22 @@ const JobList: React.FC = () => {
       </div>
 
       <div className="row">
-        {jobs.map((job) => (          <div className="col-md-6 mb-4" key={job.id}>
-            <div className="card h-100 shadow-sm" 
-                 style={{ cursor: 'pointer' }} 
-                 onClick={() => navigate(`/analysis/${job.id}`)}>
+        {jobs.map((job) => (
+          <div className="col-md-6 mb-4" key={job.id}>
+            <div
+              className="card h-100 shadow-sm position-relative"
+              style={{ cursor: 'pointer' }}
+              onClick={() => navigate(`/analysis/${job.id}`)}
+            >
+              {/* Delete button (top right corner) */}
+              <button
+                className="btn btn-sm btn-danger position-absolute"
+                style={{ top: 10, right: 10, zIndex: 2 }}
+                title="Delete job"
+                onClick={(e) => handleDelete(e, job.id)}
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
               <div className="card-body">
                 <h5 className="card-title">{job.fileName || 'Untitled Job'}</h5>
                 <div className="mb-3">

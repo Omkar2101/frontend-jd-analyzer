@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import type { RootState } from '../store/store';
@@ -22,53 +23,86 @@ const Analysis: React.FC = () => {
       </div>
     );
   }
+
   const handleDownload = () => {
     navigate('/download');
   };
 
-  const getScoreColor = (score: number) => {
-    // For bias score, lower is better (less bias)
-    // For clarity and inclusivity scores, higher is better
+  // Delete job description
+  const handleDelete = async () => {
+    if (!result?.id) return;
+    if (!window.confirm('Are you sure you want to delete this job description?')) return;
+    try {
+      await axios.delete(`/api/jobs/${result.id}`);
+      alert('Job description deleted successfully.');
+      navigate('/jds');
+    } catch (err) {
+      alert('Failed to delete job description.');
+    }
+  };
+
+
+  // Color for bias score (lower is better)
+  const getBiasColor = (score: number) => {
     if (score >= 0.8) return 'danger';     // High bias - Red
     if (score >= 0.6) return 'warning';    // Medium bias - Yellow
-    return 'success';                       // Low bias - Green
+    return 'success';                      // Low bias - Green
+  };
+
+  // Color for positive scores (higher is better)
+  const getPositiveColor = (score: number) => {
+    if (score >= 0.8) return 'success';    // High = Green
+    if (score >= 0.6) return 'warning';    // Medium = Yellow
+    return 'danger';                       // Low = Red
   };
 
 
   return (
     <div className="container py-4" id="analysis-content">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Job Description Analysis</h2>
-        <Link to="/" className="btn btn-outline-primary">Analyze New JD</Link>
+        <div className="d-flex align-items-center">
+          <h2 className="mb-0">Job Description Analysis</h2>
+        </div>
+        <div className="d-flex align-items-center gap-2">
+          <button
+            className="btn btn-outline-danger me-2"
+            title="Delete this job description"
+            style={{ borderRadius: '50%', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            onClick={handleDelete}
+          >
+            <i className="bi bi-trash" style={{ fontSize: 20 }}></i>
+          </button>
+          <Link to="/" className="btn btn-outline-primary">Analyze New JD</Link>
+        </div>
       </div>
 
       {/* Score Overview */}
       <div className="row mb-4">
         <div className="col-md-4 mb-3">
-          <div className={`card border-${getScoreColor(result.bias_score)} h-100`}>
+          <div className={`card border-${getBiasColor(result.bias_score)} h-100`}>
             <div className="card-body text-center">
               <h5 className="card-title">Bias Score</h5>
-              <h2 className={`text-${getScoreColor(result.bias_score)}`}>
+              <h2 className={`text-${getBiasColor(result.bias_score)}`}>
                 {(result.bias_score * 100).toFixed(1)}%
               </h2>
             </div>
           </div>
         </div>
         <div className="col-md-4 mb-3">
-          <div className={`card border-${getScoreColor(result.inclusivity_score)} h-100`}>
+          <div className={`card border-${getPositiveColor(result.inclusivity_score)} h-100`}>
             <div className="card-body text-center">
               <h5 className="card-title">Inclusivity Score</h5>
-              <h2 className={`text-${getScoreColor(result.inclusivity_score)}`}>
+              <h2 className={`text-${getPositiveColor(result.inclusivity_score)}`}>
                 {(result.inclusivity_score * 100).toFixed(1)}%
               </h2>
             </div>
           </div>
         </div>
         <div className="col-md-4 mb-3">
-          <div className={`card border-${getScoreColor(result.clarity_score)} h-100`}>
+          <div className={`card border-${getPositiveColor(result.clarity_score)} h-100`}>
             <div className="card-body text-center">
               <h5 className="card-title">Clarity Score</h5>
-              <h2 className={`text-${getScoreColor(result.clarity_score)}`}>
+              <h2 className={`text-${getPositiveColor(result.clarity_score)}`}>
                 {(result.clarity_score * 100).toFixed(1)}%
               </h2>
             </div>
