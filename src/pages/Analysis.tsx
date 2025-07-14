@@ -8,6 +8,8 @@ import '../styles/analysis.css';
 const Analysis: React.FC = () => {
   const navigate = useNavigate();
   const result = useSelector((state: RootState) => state.result.data);
+  console.log(result);
+  
 
   useEffect(() => {
     if (!result) {
@@ -76,6 +78,8 @@ const Analysis: React.FC = () => {
         </div>
       </div>
 
+    
+
       {/* Score Overview */}
       <div className="row mb-4">
         <div className="col-md-4 mb-3">
@@ -110,14 +114,31 @@ const Analysis: React.FC = () => {
         </div>
       </div>
 
-      {/* Issues Section */}
-      {result.issues && result.issues.length > 0 && (
+        {/* Overall Assessment */}
+      {result.overall_assessment && (
         <div className="card mb-4">
-          <div className="card-header bg-warning text-dark">
-            <h5 className="mb-0">Detected Issues</h5>
+          <div className="card-header bg-primary text-white">
+            <h5 className="mb-0">Overall Assessment</h5>
           </div>
           <div className="card-body">
-            {result.issues.map((issue: any, index: number) => (
+            <p className="lead mb-0">{result.overall_assessment}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Issues Section */}
+      <div className="card mb-4">
+        <div className="card-header bg-warning text-dark">
+          <h5 className="mb-0">Detected Issues</h5>
+        </div>
+        <div className="card-body">
+          {(!result.issues || result.issues.length === 0) ? (
+            <div className="text-center py-4">
+              <i className="bi bi-check-circle text-success" style={{ fontSize: '2rem' }}></i>
+              <p className="lead mb-0 mt-2">No issues found! Your job description looks good.</p>
+            </div>
+          ) : (
+            result.issues.map((issue: any, index: number) => (
               <div key={index} className="mb-3 p-3 border-bottom">
                 <div className="d-flex justify-content-between align-items-start">
                   <div>
@@ -131,11 +152,11 @@ const Analysis: React.FC = () => {
                   </span>
                 </div>
               </div>
-            ))}
-          </div>
+            ))
+          )}
         </div>
-      )}
-
+      </div>
+      
       {/* Suggestions Section */}
       {result.suggestions && result.suggestions.length > 0 && (
         <div className="card mb-4">

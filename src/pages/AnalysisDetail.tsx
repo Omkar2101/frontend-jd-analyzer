@@ -10,6 +10,7 @@ interface JobDescription {
   userEmail: string;
   originalText: string;
   improvedText: string;
+  overallAssessment: string;
   fileName: string;
   createdAt: string;
   analysis: {
@@ -38,6 +39,8 @@ const AnalysisDetail: React.FC = () => {
   const [result, setResult] = useState<JobDescription | null>(null);  const [isLoading, setIsLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
 
+  console.log("the result ",result);
+  
   useEffect(() => {
     const fetchAnalysis = async () => {
       try {
@@ -157,14 +160,31 @@ const AnalysisDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* Issues Section */}
-      {result.analysis.issues && result.analysis.issues.length > 0 && (
+        {/* Overall Assessment */}
+      {result.overallAssessment && (
         <div className="card mb-4">
-          <div className="card-header bg-warning text-dark">
-            <h5 className="mb-0">Detected Issues</h5>
+          <div className="card-header bg-primary text-white">
+            <h5 className="mb-0">Overall Assessment</h5>
           </div>
           <div className="card-body">
-            {result.analysis.issues.map((issue, index) => (
+            <p className="lead mb-0">{result.overallAssessment}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Issues Section */}
+      <div className="card mb-4">
+        <div className="card-header bg-warning text-dark">
+          <h5 className="mb-0">Detected Issues</h5>
+        </div>
+        <div className="card-body">
+          {(!result.analysis.issues || result.analysis.issues.length === 0) ? (
+            <div className="text-center py-4">
+              <i className="bi bi-check-circle text-success" style={{ fontSize: '2rem' }}></i>
+              <p className="lead mb-0 mt-2">No issues found! Your job description looks good.</p>
+            </div>
+          ) : (
+            result.analysis.issues.map((issue, index) => (
               <div key={index} className="mb-3 p-3 border-bottom">
                 <div className="d-flex justify-content-between align-items-start">
                   <div>
@@ -178,10 +198,10 @@ const AnalysisDetail: React.FC = () => {
                   </span>
                 </div>
               </div>
-            ))}
-          </div>
+            ))
+          )}
         </div>
-      )}
+      </div>
 
       {/* Suggestions Section */}
       {result.analysis.suggestions && result.analysis.suggestions.length > 0 && (
