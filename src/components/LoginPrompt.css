@@ -1,0 +1,156 @@
+/* LoginPrompt.css */
+
+/* Overlay styles */
+.login-prompt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+/* Modal content */
+.login-prompt-content {
+  width: 90%;
+  max-width: 400px;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  animation: fadeInSlideUp 0.3s ease-out;
+  position: relative;
+}
+
+/* Header styles */
+.login-prompt-header {
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem !important;
+}
+
+.login-prompt-title {
+  font-size: 1.25rem;
+  color: #000;
+  font-weight: 600;
+}
+
+/* Message styles */
+.login-prompt-message {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #6c757d;
+}
+
+/* Action buttons */
+.login-prompt-actions {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.login-prompt-actions .btn {
+  min-width: 80px;
+  font-weight: 500;
+}
+
+.login-prompt-actions .btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.login-prompt-actions .btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+.login-prompt-actions .btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+/* Animations */
+@keyframes fadeInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Focus styles for accessibility */
+.login-prompt-overlay:focus-within .login-prompt-content {
+  outline: 2px solid var(--bs-primary, #0d6efd);
+  outline-offset: 2px;
+}
+
+.login-prompt-actions .btn:focus {
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .login-prompt-content {
+    width: 95%;
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .login-prompt-title {
+    font-size: 1.1rem;
+  }
+  
+  .login-prompt-message {
+    font-size: 0.9rem;
+  }
+  
+  .login-prompt-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .login-prompt-actions .btn {
+    width: 100%;
+  }
+}
+
+/* Dark mode support (if needed) */
+@media (prefers-color-scheme: dark) {
+  .login-prompt-overlay {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+  
+  .login-prompt-content {
+    background-color: #212529;
+    color: #fff;
+  }
+  
+  .login-prompt-title {
+    color: #000 !important;
+  }
+  
+  .login-prompt-header,
+  .login-prompt-actions {
+    border-color: #495057;
+  }
+}
+
+
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .login-prompt-content {
+    animation: none;
+  }
+  
+  .login-prompt-actions .btn-primary:hover {
+    transform: none;
+  }
+}
