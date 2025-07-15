@@ -182,6 +182,7 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { API_ENDPOINTS } from '../utils/api';
 
 interface Job {
   id: string
@@ -321,7 +322,7 @@ const JobList: React.FC = () => {
     e.stopPropagation();
     if (!window.confirm('Are you sure you want to delete this job description?')) return;
     try {
-      await axios.delete(`http://localhost:5268/api/jobs/${jobId}`);
+      await axios.delete(API_ENDPOINTS.jobs.deleteById(jobId));
       setJobs((prev) => prev.filter((job) => job.id !== jobId));
       toast.success('Job deleted successfully');
     } catch (err) {

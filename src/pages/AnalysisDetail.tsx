@@ -4,6 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import html2pdf from 'html2pdf.js';
 import '../styles/analysis.css'
+import { API_ENDPOINTS } from '../utils/api';
 
 interface JobDescription {
   id: string;
@@ -42,10 +43,16 @@ const AnalysisDetail: React.FC = () => {
   console.log("the result ",result);
   
   useEffect(() => {
+
+    if (!id) {
+    toast.error('Invalid job ID');
+    navigate('/jds');
+    return;
+  }
     const fetchAnalysis = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(`http://localhost:5268/api/jobs/${id}`);
+        const response = await axios.get(API_ENDPOINTS.jobs.getById(id));
         setResult(response.data);
       } catch (error) {
         console.error('Error fetching analysis:', error);
