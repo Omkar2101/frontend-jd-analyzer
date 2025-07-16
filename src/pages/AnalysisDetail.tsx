@@ -11,10 +11,10 @@ interface JobDescription {
   userEmail: string;
   originalText: string;
   improvedText: string;
-  overallAssessment: string;
   fileName: string;
   createdAt: string;
   analysis: {
+    overall_assessment: string;
     bias_score: number;
     inclusivity_score: number;
     clarity_score: number;
@@ -126,7 +126,7 @@ const AnalysisDetail: React.FC = () => {
   return (
     <div className="container py-4" id="analysis-content">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Job Description Analysis</h2>
+        <h2>Job Description Analysis </h2>
         <div>
           {/* <Link to="/jds" className="btn btn-outline-primary me-2">Back to Listings</Link> */}
           <Link to="/" className="btn btn-outline-primary">Analyze New JD</Link>
@@ -168,13 +168,13 @@ const AnalysisDetail: React.FC = () => {
       </div>
 
         {/* Overall Assessment */}
-      {result.overallAssessment && (
+      {result.analysis.overall_assessment && (
         <div className="card mb-4">
           <div className="card-header bg-primary text-white">
             <h5 className="mb-0">Overall Assessment</h5>
           </div>
           <div className="card-body">
-            <p className="lead mb-0">{result.overallAssessment}</p>
+            <p className="lead mb-0">{result.analysis.overall_assessment}</p>
           </div>
         </div>
       )}

@@ -1,3 +1,5 @@
+
+
 // // pages/Home.tsx
 // import { useState, useEffect } from "react";
 // import { useDispatch, useSelector } from "react-redux";
@@ -7,9 +9,78 @@
 // import { useNavigate } from "react-router-dom";
 // import { toast } from 'react-toastify';
 // import LoginPrompt from "../components/LoginPrompt";
+// import { API_ENDPOINTS } from '../utils/api';
+// import { useAuth } from "../hooks/useAuth";
 
 // function isLoggedIn() {
-//   return !!localStorage.getItem('userEmail');
+//   const { userEmail } = useAuth();
+//   return userEmail;
+// }
+
+// // Text validation function
+// function validateJobDescriptionText(text: string): { isValid: boolean; error?: string } {
+//   const trimmedText = text.trim();
+  
+//   // Check minimum length
+//   if (trimmedText.length < 50) {
+//     return { 
+//       isValid: false, 
+//       error: `Job description must be at least 50 characters long. Current length: ${trimmedText.length} characters` 
+//     };
+//   }
+  
+//   // Check for repetitive characters (more than 5 consecutive same characters)
+//   const repetitivePattern = /(.)\1{5,}/;
+//   if (repetitivePattern.test(trimmedText)) {
+//     return { 
+//       isValid: false, 
+//       error: "Text contains too many repetitive characters. Please provide a proper job description." 
+//     };
+//   }
+  
+//   // Check for excessive special characters
+//   const specialCharPattern = /[^\w\s.,!?;:()\-'"/]/g;
+//   const specialCharCount = (trimmedText.match(specialCharPattern) || []).length;
+//   const specialCharRatio = specialCharCount / trimmedText.length;
+//   if (specialCharRatio > 0.3) {
+//     return { 
+//       isValid: false, 
+//       error: "Text contains too many special characters. Please provide a valid job description." 
+//     };
+//   }
+  
+//   // Check for meaningful words (at least 10 words with 3+ characters)
+//   const meaningfulWords = trimmedText.split(/\s+/).filter(word => 
+//     word.replace(/[^\w]/g, '').length >= 3
+//   );
+//   if (meaningfulWords.length < 10) {
+//     return { 
+//       isValid: false, 
+//       error: "Please provide a more detailed job description with proper words." 
+//     };
+//   }
+  
+//   // Check for common job-related keywords
+//   const jobKeywords = [
+//     'job', 'position', 'role', 'responsibilities', 'requirements', 'experience', 
+//     'skills', 'qualifications', 'candidate', 'work', 'team', 'company', 
+//     'duties', 'tasks', 'developer', 'manager', 'analyst', 'engineer', 'coordinator',
+//     "employment", "hiring", "recruit", "apply", "application", "resume", "cv",
+//     "salary", "benefits", "location", "remote", "office", "department"
+//   ];
+  
+//   const hasJobKeywords = jobKeywords.some(keyword => 
+//     trimmedText.toLowerCase().includes(keyword)
+//   );
+  
+//   if (!hasJobKeywords) {
+//     return { 
+//       isValid: false, 
+//       error: "Text doesn't appear to be a job description. Please provide a valid job posting." 
+//     };
+//   }
+  
+//   return { isValid: true };
 // }
 
 // function Home() {
@@ -18,6 +89,8 @@
 //   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 //   const [inputMethod, setInputMethod] = useState<'text' | 'file'>('text');
 //   const [isAnalyzing, setIsAnalyzing] = useState(false);
+//   const [textValidation, setTextValidation] = useState<{ isValid: boolean; error?: string }>({ isValid: true });
+  
 //   const dispatch = useDispatch();
 //   const navigate = useNavigate();
 //   const result = useSelector((state: RootState) => state.result.data);
@@ -27,6 +100,16 @@
 //     dispatch(clearResult());
 //   }, [dispatch]);
 
+//   // Validate text on change
+//   useEffect(() => {
+//     if (inputMethod === 'text' && text.trim()) {
+//       const validation = validateJobDescriptionText(text);
+//       setTextValidation(validation);
+//     } else {
+//       setTextValidation({ isValid: true });
+//     }
+//   }, [text, inputMethod]);
+
 //   // Reset other input when method changes
 //   const handleInputMethodChange = (method: 'text' | 'file') => {
 //     setInputMethod(method);
@@ -34,6 +117,7 @@
 //       setFile(null);
 //     } else {
 //       setText('');
+//       setTextValidation({ isValid: true });
 //     }
 //     // Clear any previous results when changing input method
 //     dispatch(clearResult());
@@ -51,6 +135,15 @@
 //       return;
 //     }
 
+//     // Validate text input before proceeding
+//     if (inputMethod === 'text') {
+//       const validation = validateJobDescriptionText(text);
+//       if (!validation.isValid) {
+//         toast.error(validation.error);
+//         return;
+//       }
+//     }
+
 //     try {
 //       setIsAnalyzing(true);
 //       // Clear previous results before starting new analysis
@@ -58,22 +151,23 @@
       
 //       let res;
 //       if (inputMethod === 'text' && text.trim()) {
-//         res = await axios.post("http://localhost:5268/api/jobs/analyze", { 
+//         res = await axios.post(API_ENDPOINTS.jobs.analyze, { 
 //           text,
 //           userEmail 
 //         });
 //       } else if (inputMethod === 'file' && file) {
 //         const formData = new FormData();
 //         formData.append("file", file);
-//         formData.append("userEmail", userEmail);
-//         res = await axios.post("http://localhost:5268/api/jobs/upload", formData);
+//         formData.append("userEmail", userEmail); 
+//         res = await axios.post(API_ENDPOINTS.jobs.upload, formData);
 //       } else {
 //         toast.error('Please provide a job description');
 //         setIsAnalyzing(false);
 //         return;
 //       }
 //       dispatch(setResult(res.data));
-//       navigate('/analysis');    } catch (error: any) {
+//       navigate('/analysis');
+//     } catch (error: any) {
 //       const errorMessage = error.response?.data || 'Error analyzing JD. Please try again.';
 //       toast.error(errorMessage);
 //       console.error(error);
@@ -81,6 +175,10 @@
 //       setIsAnalyzing(false);
 //     }
 //   };
+
+//   const canAnalyze = inputMethod === 'text' 
+//     ? text.trim() && textValidation.isValid 
+//     : file;
 
 //   return (
 //     <>
@@ -107,16 +205,29 @@
 //         </div>
 
 //         {inputMethod === 'text' ? (
-//           <textarea
-//             className="form-control mb-3"
-//             rows={6}
-//             value={text}
-//             onChange={(e) => setText(e.target.value)}
-//             placeholder="Paste job description text here"
-//           />        ) : (
+//           <div>
+//             <textarea
+//               className={`form-control mb-3 ${textValidation.isValid ? '' : 'is-invalid'}`}
+//               rows={6}
+//               value={text}
+//               onChange={(e) => setText(e.target.value)}
+//               placeholder="Paste job description text here"
+//             />
+//             {!textValidation.isValid && textValidation.error && (
+//               <div className="invalid-feedback d-block mb-3">
+//                 {textValidation.error}
+//               </div>
+//             )}
+//             <small className="text-muted d-block mb-3">
+//               Please paste a complete job description with requirements, responsibilities, and qualifications (minimum 50 characters).
+//             </small>
+//           </div>
+//         ) : (
 //           <div>
 //             <input
-//               type="file"              accept=".txt,.pdf,.doc,.docx,.jpg,.jpeg,.png"
+//               data-testid="file-input"
+//               type="file"
+//               accept=".txt,.pdf,.doc,.docx,.jpg,.jpeg,.png"
 //               className="form-control mb-3"
 //               onChange={(e) => setFile(e.target.files?.[0] || null)}
 //             />
@@ -124,10 +235,12 @@
 //               Accepted file types: .txt, .pdf, .doc, .docx, .jpg, .jpeg, .png
 //             </small>
 //           </div>
-//         )}<button 
+//         )}
+
+//         <button 
 //           className="btn btn-primary mb-3" 
 //           onClick={handleAnalyze}
-//           disabled={isAnalyzing || (inputMethod === 'text' ? !text.trim() : !file)}
+//           disabled={isAnalyzing || !canAnalyze}
 //         >
 //           {isAnalyzing ? (
 //             <>
@@ -170,10 +283,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import LoginPrompt from "../components/LoginPrompt";
 import { API_ENDPOINTS } from '../utils/api';
-
-function isLoggedIn() {
-  return !!localStorage.getItem('userEmail');
-}
+import { useAuth } from "../hooks/useAuth";
 
 // Text validation function
 function validateJobDescriptionText(text: string): { isValid: boolean; error?: string } {
@@ -252,6 +362,9 @@ function Home() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const result = useSelector((state: RootState) => state.result.data);
+  
+  // Use the auth hook properly
+  const { userEmail, isLoading } = useAuth();
 
   // Clear results when component mounts
   useEffect(() => {
@@ -282,14 +395,9 @@ function Home() {
   };
 
   const handleAnalyze = async () => {
-    if (!isLoggedIn()) {
-      setShowLoginPrompt(true);
-      return;
-    }
-
-    const userEmail = localStorage.getItem('userEmail');
+    // Check if user is logged in using the hook
     if (!userEmail) {
-      toast.error('Please log in first');
+      setShowLoginPrompt(true);
       return;
     }
 
@@ -338,6 +446,19 @@ function Home() {
     ? text.trim() && textValidation.isValid 
     : file;
 
+  // Show loading state while auth is being determined
+  if (isLoading) {
+    return (
+      <div className="container mt-5">
+        <div className="d-flex justify-content-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="container mt-5">
@@ -383,6 +504,7 @@ function Home() {
         ) : (
           <div>
             <input
+              data-testid="file-input"
               type="file"
               accept=".txt,.pdf,.doc,.docx,.jpg,.jpeg,.png"
               className="form-control mb-3"

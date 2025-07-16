@@ -1,68 +1,113 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { StorageService } from '../utils/storage';
+import '../styles/Login.css';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-      setError('Please enter a valid email address.');
+    
+    if (!email.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) {
+      setError('Please enter a valid email address');
       return;
     }
+    
     setError('');
-    localStorage.setItem('userEmail', email);
-    toast.success('User logged in successfully!', {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    });    setTimeout(() => {
-      navigate('/');
-    }, 2000);
+    setIsLoading(true);
+
+    try {
+      // Use StorageService to save user email and check if it was successful
+      const success = StorageService.setUserEmail(email);
+      
+      if (!success) {
+        throw new Error('Failed to save user email');
+      }
+      
+      toast.success('User logged in successfully!', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
+    } catch (err) {
+      setError('Login failed. Please try again.');
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    // Clear error when user starts typing a valid email
+    if (error && e.target.value.trim() && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e.target.value.trim())) {
+      setError('');
+    }
   };
 
   return (
     <div className="container">
-      <div style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
-        marginTop: '100px',
-        padding: '40px',
-        background: 'white',
-        borderRadius: 'var(--border-radius)',
-        boxShadow: 'var(--box-shadow)',
-        maxWidth: '400px',
-        margin: '100px auto'
-      }}>
-        <h2 style={{ marginBottom: '30px', color: 'var(--primary-color)' }}>Welcome Back!</h2>
-        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-          <div style={{ marginBottom: '20px' }}>
-            <label htmlFor="email" style={{ 
-              display: 'block', 
-              marginBottom: '8px',
-              fontWeight: '500'
-            }}>Email Address</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              className="form-control"
-              placeholder="Enter your email"
-            />
+      <div className="row justify-content-center">
+        <div className="col-md-6 col-lg-4">
+          <div className="login-card card shadow-lg border-0 mt-5">
+            <div className="card-body p-5">
+              <div className="text-center mb-4">
+                <h2 className="login-title text-primary fw-bold">Welcome Back!</h2>
+                <p className="text-muted">Please sign in to your account</p>
+              </div>
+              
+              <form onSubmit={handleSubmit} role="form">
+                <div className="mb-3">
+                  <label htmlFor="email" className="form-label fw-medium">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={handleEmailChange}
+                    required
+                    className={`form-control form-control-lg ${error ? 'is-invalid' : ''}`}
+                    placeholder="Enter your email"
+                    disabled={isLoading}
+                  />
+                  {error && (
+                    <div className="invalid-feedback d-block">
+                      {error}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="d-grid">
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary btn-lg"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Logging in...
+                      </>
+                    ) : (
+                      'Login'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-          {error && <div style={{ color: '#dc3545', marginBottom: '15px', fontSize: '0.9em' }}>{error}</div>}
-          <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-            Login
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );
