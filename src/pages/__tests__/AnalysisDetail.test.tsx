@@ -22,6 +22,7 @@ describe('AnalysisDetail Page', () => {
           inclusivity_score: 0.7,
           clarity_score: 0.9,
           issues: [],
+          overall_assessment: 'This is a mock assessment.',
           suggestions: [
             {
               original: 'Sample original text',
@@ -68,6 +69,7 @@ describe('AnalysisDetail Page', () => {
           bias_score: 0.8,
           inclusivity_score: 0.7,
           clarity_score: 0.9,
+          overall_assessment: 'This is a mock assessment.',
           issues: [],
           suggestions: [],
           seo_keywords: []

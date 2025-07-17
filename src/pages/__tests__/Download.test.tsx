@@ -58,7 +58,8 @@ describe('Download Page', () => {
       clarity_score: 0.9,
       issues: [],
       suggestions: [],
-      seo_keywords: []
+      seo_keywords: [],
+      overall_assessment: 'This is a mock assessment.'
     };
 
     const mockStore = createMockStore(mockResultData);
