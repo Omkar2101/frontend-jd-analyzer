@@ -39,10 +39,24 @@ const Download: React.FC = () => {
     setTimeout(downloadPDF, 500);
   }, [result, navigate]);
 
-  const getScoreColor = (score: number) => {
-    if (score >= 0.8) return 'success';
-    if (score >= 0.6) return 'warning';
-    return 'danger';
+  // const getScoreColor = (score: number) => {
+  //   if (score >= 0.8) return 'success';
+  //   if (score >= 0.6) return 'warning';
+  //   return 'danger';
+  // };
+
+    // For bias: high = red, medium = yellow, low = green
+  const getBiasScoreColor = (score: number) => {
+    if (score >= 0.8) return 'danger';     // High bias - Red
+    if (score >= 0.6) return 'warning';    // Medium bias - Yellow
+    return 'success';                      // Low bias - Green
+  };
+
+  // For inclusivity/clarity: high = green, medium = yellow, low = red
+  const getPositiveScoreColor = (score: number) => {
+    if (score >= 0.8) return 'success';    // High score - Green
+    if (score >= 0.6) return 'warning';    // Medium score - Yellow
+    return 'danger';                       // Low score - Red
   };
 
   if (!result) {
@@ -56,30 +70,30 @@ const Download: React.FC = () => {
       {/* Score Overview */}
       <div className="row mb-4">
         <div className="col-md-4 mb-3">
-          <div className={`card border-${getScoreColor(result.bias_score)} h-100`}>
+          <div className={`card border-${getBiasScoreColor(result.bias_score)} h-100`}>
             <div className="card-body text-center">
               <h5 className="card-title">Bias Score</h5>
-              <h2 className={`text-${getScoreColor(result.bias_score)}`}>
+              <h2 className={`text-${getBiasScoreColor(result.bias_score)}`}>
                 {(result.bias_score * 100).toFixed(1)}%
               </h2>
             </div>
           </div>
         </div>
         <div className="col-md-4 mb-3">
-          <div className={`card border-${getScoreColor(result.inclusivity_score)} h-100`}>
+          <div className={`card border-${getPositiveScoreColor(result.inclusivity_score)} h-100`}>
             <div className="card-body text-center">
               <h5 className="card-title">Inclusivity Score</h5>
-              <h2 className={`text-${getScoreColor(result.inclusivity_score)}`}>
+              <h2 className={`text-${getPositiveScoreColor(result.inclusivity_score)}`}>
                 {(result.inclusivity_score * 100).toFixed(1)}%
               </h2>
             </div>
           </div>
         </div>
         <div className="col-md-4 mb-3">
-          <div className={`card border-${getScoreColor(result.clarity_score)} h-100`}>
+          <div className={`card border-${getPositiveScoreColor(result.clarity_score)} h-100`}>
             <div className="card-body text-center">
               <h5 className="card-title">Clarity Score</h5>
-              <h2 className={`text-${getScoreColor(result.clarity_score)}`}>
+              <h2 className={`text-${getPositiveScoreColor(result.clarity_score)}`}>
                 {(result.clarity_score * 100).toFixed(1)}%
               </h2>
             </div>
