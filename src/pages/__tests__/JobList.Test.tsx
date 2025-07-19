@@ -74,7 +74,7 @@ describe("JobList Component", () => {
 
     await waitFor(() => {
       expect(screen.getByText(/no job listings found/i)).toBeInTheDocument();
-      expect(screen.getByText(/analyze new job listing/i)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /analyze new job/i })).toBeInTheDocument();
     });
   });
 

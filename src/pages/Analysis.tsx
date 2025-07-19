@@ -68,13 +68,7 @@ const Analysis: React.FC = () => {
           <h2 className="mb-0">Job Description Analysis</h2>
         </div>
         <div className="d-flex align-items-center gap-2">
-          <button
-            className="btn btn-outline-danger rounded-circle d-flex align-items-center justify-content-center"
-            title="Delete this job description"
-            onClick={handleDelete}
-          >
-            <i className="bi bi-trash" style={{ fontSize: 20 }}></i>
-          </button>
+          
           <Link to="/" className="btn btn-outline-primary">
             Analyze New JD
           </Link>
@@ -129,7 +123,7 @@ const Analysis: React.FC = () => {
       {result.overall_assessment && (
         <div className="card mb-4">
           <div className="card-header bg-primary text-white">
-            <h5 className="mb-0">Overall Assessment</h5>
+            <h5 className="mb-0">Overall Assessment </h5>
           </div>
           <div className="card-body">
             <p className="lead mb-0">{result.overall_assessment}</p>

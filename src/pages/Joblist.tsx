@@ -131,7 +131,7 @@ const JobList: React.FC = () => {
             You haven't analyzed any job listings yet. Start by uploading one!
           </p>
           <Link to="/" className="btn btn-primary">
-            Analyze New Job Listing
+            Analyze New Job 
           </Link>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import type { RootState } from '../store/store';
@@ -8,12 +8,21 @@ import '../styles/analysis.css';
 const Download: React.FC = () => {
   const navigate = useNavigate();
   const result = useSelector((state: RootState) => state.result.data);
+  const hasDownloaded = useRef(false);
 
   useEffect(() => {
     if (!result) {
       navigate('/');
       return;
     }
+
+    // Prevent multiple downloads
+    if (hasDownloaded.current) {
+      return;
+    }
+
+    // Set flag to prevent future executions
+    hasDownloaded.current = true;
 
     // Automatically trigger download when component mounts
     const downloadPDF = () => {
