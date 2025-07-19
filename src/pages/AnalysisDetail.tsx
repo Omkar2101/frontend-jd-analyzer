@@ -18,6 +18,8 @@ interface JobDescription {
     bias_score: number;
     inclusivity_score: number;
     clarity_score: number;
+    role: string;
+    industry: string;
     issues: Array<{
       type: string;
       text: string;
@@ -40,7 +42,7 @@ const AnalysisDetail: React.FC = () => {
   const [result, setResult] = useState<JobDescription | null>(null);  const [isLoading, setIsLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  console.log("the result ",result?.fileName);
+  console.log("the result ",result);
   
   useEffect(() => {
 
@@ -152,6 +154,8 @@ const AnalysisDetail: React.FC = () => {
       </div>
 
       <div className='mb-3'><h3>{result.fileName}</h3></div>
+         {/* Overall Assessment */}
+     
 
       {/* Score Overview */}
       <div className="row mb-4">
@@ -186,6 +190,27 @@ const AnalysisDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+       {result.analysis.role && (
+        <div className="card mb-4">
+          <div className="card-header bg-tri text-white">
+            <h5 className="mb-0">Job Role </h5>
+          </div>
+          <div className="card-body">
+            <p className="lead mb-0">{result.analysis.role}</p>
+          </div>
+        </div>
+      )}
+      {result.analysis.industry && (
+        <div className="card mb-4">
+          <div className="card-header bg-success text-white">
+            <h5 className="mb-0">Job Industry </h5>
+          </div>
+          <div className="card-body">
+            <p className="lead mb-0">{result.analysis.industry}</p>
+          </div>
+        </div>
+      )}
 
         {/* Overall Assessment */}
       {result.analysis.overall_assessment && (

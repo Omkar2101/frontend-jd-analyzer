@@ -46,6 +46,10 @@
   color: #666;
 }
 
+.bg-tri {
+  background-color: var(--tri-color) !important;
+}
+
 /* Print styles for PDF export */
 @media print {
   .analysis-container {

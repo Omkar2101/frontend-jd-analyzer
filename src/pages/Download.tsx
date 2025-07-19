@@ -109,6 +109,38 @@ const Download: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* Overall Assessment */}
+       {result.role && (
+        <div className="card mb-4">
+          <div className="card-header bg-tri text-white">
+            <h5 className="mb-0">Job Role </h5>
+          </div>
+          <div className="card-body">
+            <p className="lead mb-0">{result.role}</p>
+          </div>
+        </div>
+      )}
+      
+       {result.industry && (
+        <div className="card mb-4">
+          <div className="card-header bg-success text-white">
+            <h5 className="mb-0">Job Industry </h5>
+          </div>
+          <div className="card-body">
+            <p className="lead mb-0">{result.industry}</p>
+          </div>
+        </div>
+      )}
+      {result.overall_assessment && (
+        <div className="card mb-4">
+          <div className="card-header bg-primary text-white">
+            <h5 className="mb-0">Overall Assessment </h5>
+          </div>
+          <div className="card-body">
+            <p className="lead mb-0">{result.overall_assessment}</p>
+          </div>
+        </div>
+      )}
 
       {/* Issues Section */}
       {result.issues && result.issues.length > 0 && (
