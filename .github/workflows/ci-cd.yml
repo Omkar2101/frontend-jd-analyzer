@@ -4,9 +4,9 @@ name: Frontend CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main,ui ,feature/localstorage-update]
   pull_request:
-    branches: [ main ]
+    branches: [ main,ui ,feature/localstorage-update]
 
 jobs:
   build-and-test:

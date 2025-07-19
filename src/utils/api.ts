@@ -8,5 +8,6 @@ export const API_ENDPOINTS = {
     upload: `${API_BASE_URL}/jobs/upload`,
     getById: (id: string) => `${API_BASE_URL}/jobs/${id}`,
     deleteById: (id: string) => `${API_BASE_URL}/jobs/${id}`,
+    getByEmail: (email: string) => `${API_BASE_URL}/jobs/user/${email}`,
   }
 };

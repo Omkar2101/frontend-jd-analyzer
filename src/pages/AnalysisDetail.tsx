@@ -11,10 +11,10 @@ interface JobDescription {
   userEmail: string;
   originalText: string;
   improvedText: string;
-  overallAssessment: string;
   fileName: string;
   createdAt: string;
   analysis: {
+    overall_assessment: string;
     bias_score: number;
     inclusivity_score: number;
     clarity_score: number;
@@ -40,7 +40,7 @@ const AnalysisDetail: React.FC = () => {
   const [result, setResult] = useState<JobDescription | null>(null);  const [isLoading, setIsLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  console.log("the result ",result);
+  console.log("the result ",result?.fileName);
   
   useEffect(() => {
 
@@ -66,20 +66,38 @@ const AnalysisDetail: React.FC = () => {
     if (id) {
       fetchAnalysis();
     }
-  }, [id, navigate]);  const handleDownload = async () => {
+  }, [id, navigate]);
+    const handleDownload = async () => {
     const content = document.getElementById('analysis-content');
     if (content) {
       try {
         setIsDownloading(true);
-        const opt = {
+        // Clone the element to avoid modifying the original
+      const clonedContent = content.cloneNode(true) as HTMLElement;
+
+      // Remove all buttons and navigation elements
+      const buttonsToRemove = clonedContent.querySelectorAll('.btn, button, .no-print');
+      buttonsToRemove.forEach(btn => btn.remove());
+
+      // Create a temporary container
+      const tempContainer = document.createElement('div');
+      tempContainer.appendChild(clonedContent);
+      document.body.appendChild(tempContainer);
+      const opt = {
           margin: 1,
           filename: `jd-analysis-${id}.pdf`,
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 2 },
           jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
-        await html2pdf().set(opt).from(content).save();
-        toast.success('PDF downloaded successfully');
+
+      await html2pdf().set(opt).from(tempContainer).save();
+      // Clean up
+      document.body.removeChild(tempContainer);
+      toast.success('PDF downloaded successfully');
+        
+        // await html2pdf().set(opt).from(content).save();
+        // toast.success('PDF downloaded successfully');
       } catch (error) {
         console.error('Error generating PDF:', error);
         toast.error('Failed to generate PDF');
@@ -125,13 +143,15 @@ const AnalysisDetail: React.FC = () => {
 
   return (
     <div className="container py-4" id="analysis-content">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Job Description Analysis</h2>
+      <div className="d-flex justify-content-between align-items-center mb-4 no-print">
+        <h2>Job Description Analysis </h2>
         <div>
           {/* <Link to="/jds" className="btn btn-outline-primary me-2">Back to Listings</Link> */}
-          <Link to="/" className="btn btn-outline-primary">Analyze New JD</Link>
+          <Link to="/" className="btn btn-outline-primary">Analyze New JD </Link>
         </div>
       </div>
+
+      <div className='mb-3'><h3>{result.fileName}</h3></div>
 
       {/* Score Overview */}
       <div className="row mb-4">
@@ -168,13 +188,13 @@ const AnalysisDetail: React.FC = () => {
       </div>
 
         {/* Overall Assessment */}
-      {result.overallAssessment && (
+      {result.analysis.overall_assessment && (
         <div className="card mb-4">
           <div className="card-header bg-primary text-white">
-            <h5 className="mb-0">Overall Assessment</h5>
+            <h5 className="mb-0">Overall Assessment </h5>
           </div>
           <div className="card-body">
-            <p className="lead mb-0">{result.overallAssessment}</p>
+            <p className="lead mb-0">{result.analysis.overall_assessment}</p>
           </div>
         </div>
       )}
@@ -188,7 +208,7 @@ const AnalysisDetail: React.FC = () => {
           {(!result.analysis.issues || result.analysis.issues.length === 0) ? (
             <div className="text-center py-4">
               <i className="bi bi-check-circle text-success" style={{ fontSize: '2rem' }}></i>
-              <p className="lead mb-0 mt-2">No issues found! Your job description looks good.</p>
+              <p className="lead mb-0 mt-2">No issues found! </p>
             </div>
           ) : (
             result.analysis.issues.map((issue, index) => (
