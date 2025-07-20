@@ -90,37 +90,40 @@ VITE_API_BASE_URL=http://localhost:5268/api
 5. **Open your browser**
 Navigate to `http://localhost:5173`
 
-##  Project Structure
-frontend-jd-analyzer/
-├── public/
-│ └── idea.png
-├── src/
-│ ├── components/ # Reusable UI components
-│ │ └── LoginPrompt.tsx
-│ ├── hooks/ # Custom React hooks
-│ │ └── useAuth.ts
-│ ├── pages/ # Main application pages
-│ │ ├── Home.tsx # Main analysis interface
-│ │ ├── Analysis.tsx # Results display
-│ │ ├── JobList.tsx # Job history
-│ │ └── Login.tsx # Authentication
-│ ├── store/ # Redux store configuration
-│ │ ├── store.ts
-│ │ └── resultSlice.ts
-│ ├── styles/ # Custom CSS styles
-│ │ ├── analysis.css
-│ │ └── Login.css
-│ ├── utils/ # Utility functions
-│ │ ├── api.ts # API configuration
-│ │ └── storage.ts # Local storage utilities
-│ └── App.tsx # Main application component
-├── .github/
-│ └── workflows/ # CI/CD pipeline
-│ └── frontend-ci-cd.yml
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-└── README.md
+
+## 📁 Project Structure
+
+1. `frontend-jd-analyzer/`
+   - `public/`
+     - `idea.png`
+   - `src/`
+     - `components/` – Reusable UI components  
+       - `LoginPrompt.tsx`
+     - `hooks/` – Custom React hooks  
+       - `useAuth.ts`
+     - `pages/` – Main application pages  
+       - `Home.tsx` – Main analysis interface  
+       - `Analysis.tsx` – Results display  
+       - `JobList.tsx` – Job history  
+       - `Login.tsx` – Authentication  
+     - `store/` – Redux store configuration  
+       - `store.ts`  
+       - `resultSlice.ts`
+     - `styles/` – Custom CSS styles  
+       - `analysis.css`  
+       - `Login.css`
+     - `utils/` – Utility functions  
+       - `api.ts` – API configuration  
+       - `storage.ts` – Local storage utilities  
+     - `App.tsx` – Main application component
+   - `.github/`
+     - `workflows/` – CI/CD pipeline  
+       - `frontend-ci-cd.yml`
+   - `package.json`  
+   - `tsconfig.json`  
+   - `vite.config.ts`  
+   - `README.md`
+
 
 
 ## 📝 Available Scripts
