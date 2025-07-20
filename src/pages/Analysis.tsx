@@ -313,7 +313,7 @@ const Analysis: React.FC = () => {
         </div>
         <div className="d-flex align-items-center gap-2">
           
-          <Link to="/" className="btn btn-outline-primary">
+          <Link to="/" className="btn btn-primary">
             Analyze New JD
           </Link>
         </div>

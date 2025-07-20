@@ -8,10 +8,10 @@
   opacity: 0.8;
 }
 
-.navbar-brand-clickable:focus {
+/* .navbar-brand-clickable:focus {
   outline: 2px solid rgba(255, 255, 255, 0.5);
   outline-offset: 2px;
-}
+} */
 
 .user-info {
   color: white;

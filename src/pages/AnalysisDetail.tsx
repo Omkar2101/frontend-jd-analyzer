@@ -488,7 +488,7 @@ const AnalysisDetail: React.FC = () => {
         <h2>Job Description Analysis </h2>
         <div>
           {/* <Link to="/jds" className="btn btn-outline-primary me-2">Back to Listings</Link> */}
-          <Link to="/" className="btn btn-outline-primary">Analyze New JD </Link>
+          <Link to="/" className="btn btn-primary">Analyze New JD </Link>
         </div>
       </div>
 
