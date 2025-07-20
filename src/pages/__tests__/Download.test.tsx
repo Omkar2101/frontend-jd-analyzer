@@ -409,7 +409,7 @@ describe('Download Page', () => {
       </Provider>
     );
 
-    expect(screen.queryByText(/Detected Issues/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/No issues found! Your job description looks good/i)).toBeInTheDocument();
   });
 
   it('does not render suggestions section when no suggestions', async () => {
@@ -432,7 +432,7 @@ describe('Download Page', () => {
       </Provider>
     );
 
-    expect(screen.queryByText(/Improvement Suggestions/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/No suggestions needed! Your job description is well-written/i)).toBeInTheDocument();
   });
 
   it('does not render SEO keywords section when no keywords', async () => {
