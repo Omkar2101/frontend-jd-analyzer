@@ -74,9 +74,9 @@ name: Frontend CI/CD
 
 on:
   push:
-    branches: [ main, ui, feature/localstorage-update,ci ]
+    branches: [ main, ui, feature/localstorage-update,cd ]
   pull_request:
-    branches: [ main, ui, feature/localstorage-update,ci ]
+    branches: [ main, ui, feature/localstorage-update,cd ]
 
 env:
   REGISTRY: ghcr.io
