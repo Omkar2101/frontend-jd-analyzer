@@ -8,12 +8,10 @@ import { toast } from 'react-toastify'
 import { API_ENDPOINTS } from '../utils/api'
 import { useAuth } from '../hooks/useAuth'
 
-
 interface Job {
   id: string
   title: string
   originalText: string
-  improvedText: string
   fileName: string
   createdAt?: string
   analysis?: {
@@ -29,6 +27,25 @@ const JobList: React.FC = () => {
 
   const navigate = useNavigate()
   const { userEmail, isLoading } = useAuth()
+
+  // Helper to get badge class based on score and type
+  // Helper to get badge class based on score and type
+const getBadgeClass = (score: number, scoreType: 'bias' | 'inclusivity' | 'clarity'): string => {
+  // Convert to percentage if score is in decimal format (0-1)
+  const percentageScore = score <= 1 ? score * 100 : score;
+  
+  if (scoreType === 'bias') {
+    // For bias: lower is better
+    if (percentageScore < 60) return 'bg-success' // Green - good (low bias)
+    if (percentageScore < 80) return 'bg-warning' // Yellow - medium
+    return 'bg-danger' // Red - bad (high bias)
+  } else {
+    // For inclusivity and clarity: higher is better
+    if (percentageScore < 60) return 'bg-danger' // Red - bad (low score)
+    if (percentageScore < 80) return 'bg-warning' // Yellow - medium
+    return 'bg-success' // Green - good (high score)
+  }
+}
 
   // Helper to parse possibly stringified JSON text
   const parseExtractedText = (text: string): string => {
@@ -71,7 +88,7 @@ const JobList: React.FC = () => {
         const processedJobs = response.data.map((job: Job) => ({
           ...job,
           originalText: parseExtractedText(job.originalText),
-          improvedText: parseExtractedText(job.improvedText),
+          // improvedText: parseExtractedText(job.improvedText),
         }))
 
         setJobs(processedJobs)
@@ -207,14 +224,14 @@ const JobList: React.FC = () => {
                 {job.analysis && (
                   <div className="mb-3">
                     <div className="d-flex gap-2 flex-wrap">
-                      <span className="badge bg-info">
-                        Bias: {job.analysis.bias_score.toFixed(1)}
+                      <span className={`badge ${getBadgeClass(job.analysis.bias_score, 'bias')}`}>
+                        Bias: {100*(job.analysis.bias_score)}%
                       </span>
-                      <span className="badge bg-success">
-                        Inclusivity: {job.analysis.inclusivity_score.toFixed(1)}
+                      <span className={`badge ${getBadgeClass(job.analysis.inclusivity_score, 'inclusivity')}`}>
+                        Inclusivity: {100*(job.analysis.inclusivity_score)}%
                       </span>
-                      <span className="badge bg-primary">
-                        Clarity: {job.analysis.clarity_score.toFixed(1)}
+                      <span className={`badge ${getBadgeClass(job.analysis.clarity_score, 'clarity')}`}>
+                        Clarity: {100*(job.analysis.clarity_score)}%
                       </span>
                     </div>
                   </div>
@@ -226,16 +243,6 @@ const JobList: React.FC = () => {
                   <div className="text-preview bg-light p-2 rounded">
                     <p className="card-text mb-0 text-muted small">
                       {truncateText(job.originalText, 120)}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Improved Text */}
-                <div className="mb-3">
-                  <h6 className="text-success mb-2">Improved Text:</h6>
-                  <div className="text-preview bg-light p-2 rounded border-start border-success border-3">
-                    <p className="card-text mb-0 small">
-                      {truncateText(job.improvedText, 120)}
                     </p>
                   </div>
                 </div>
@@ -264,3 +271,4 @@ const JobList: React.FC = () => {
 }
 
 export default JobList
+
