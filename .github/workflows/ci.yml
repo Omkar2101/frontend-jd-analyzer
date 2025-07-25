@@ -11,7 +11,7 @@ on:
       - main
       - ui 
       - feature/localstorage-update
-      -formatjd
+      - formatjd
   
   # Run on pull requests targeting specific branches
   pull_request:
