@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
-import html2pdf from 'html2pdf.js'; // ✅ Import from the actual package
-import './ImprovedJobDescription.css';
+import html2pdf from 'html2pdf.js'; // 
+import '../styles/ImprovedJobDescription.css';
 
 interface ImprovedJobDescriptionProps {
   improvedText: string;
@@ -260,9 +261,7 @@ const ImprovedJobDescription: React.FC<ImprovedJobDescriptionProps> = ({ improve
 
       {pdfUrl && !isGenerating && !error && (
         <>
-          <div className="alert alert-info">
-            <strong>PDF Preview</strong> - Professional job description format
-          </div>
+        
           
           <div className="simple-pdf-preview">
             <iframe

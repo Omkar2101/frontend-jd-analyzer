@@ -1,0 +1,387 @@
+/* JobFileViewer.css */
+
+.job-file-viewer {
+  width: 100%;
+  max-width: 100%;
+}
+
+.file-viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.file-viewer-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.file-type-info {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+/* No file state */
+.no-file-container {
+  padding: 2rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  background-color: #f8f9fa;
+  text-align: center;
+}
+
+.no-file-icon {
+  font-size: 2rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.no-file-text {
+  margin: 0;
+  color: #6c757d;
+}
+
+/* Error states */
+.error-container {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #f5c6cb;
+  border-radius: 0.375rem;
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.error-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.error-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.btn-outline-primary {
+  color: #007bff;
+  border-color: #007bff;
+  background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-outline-danger {
+  color: #dc3545;
+  border-color: #dc3545;
+  background-color: transparent;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-outline-secondary {
+  color: #6c757d;
+  border-color: #6c757d;
+  background-color: transparent;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #6c757d;
+  color: white;
+}
+
+/* Loading states */
+.loading-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 0.25rem solid #f3f4f6;
+  border-radius: 50%;
+  border-top: 0.25rem solid #007bff;
+  animation: spin 1s ease-in-out infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin: 0;
+  color: #6c757d;
+}
+
+/* Image viewer */
+.image-container {
+  text-align: center;
+}
+
+.image-preview {
+  max-width: 100%;
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+}
+
+.image-info {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+/* PDF viewer */
+.pdf-viewer-container {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  background-color: #f5f5f5;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.pdf-page {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pdf-info {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+/* DOCX viewer */
+.docx-container {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  background-color: white;
+  min-height: 25rem;
+  max-height: 40rem;
+  overflow-x: auto;
+  overflow-y: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  width: 100%;
+}
+
+/* Force DOCX content to be responsive */
+.docx-container .docx {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.docx-container .docx * {
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+.docx-container .docx table {
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+
+.docx-container .docx td,
+.docx-container .docx th {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  max-width: 0 !important;
+}
+
+/* Text file viewer */
+.txt-viewer-container {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  background-color: #f8f9fa;
+  min-height: 25rem;
+  overflow: hidden;
+}
+
+.txt-viewer-wrapper {
+  height: 25rem;
+  border: none;
+}
+
+.txt-success-message {
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+/* Generic file viewer */
+.generic-file-container {
+  padding: 2rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  background-color: #f8f9fa;
+  text-align: center;
+}
+
+.generic-file-icon {
+  font-size: 3rem;
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.generic-file-title {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.generic-file-size {
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.generic-file-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .file-viewer-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .pdf-viewer-container {
+    padding: 0.5rem;
+    max-height: 60vh;
+  }
+  
+  .docx-container {
+    padding: 0.75rem;
+    max-height: 30rem;
+    font-size: 0.8125rem;
+    overflow-x: auto;
+  }
+  
+  .docx-container .docx {
+    min-width: 100% !important;
+    transform: scale(0.85) !important;
+    transform-origin: top left !important;
+  }
+  
+  .txt-viewer-container,
+  .txt-viewer-wrapper {
+    min-height: 20rem;
+    height: 20rem;
+  }
+  
+  .image-preview {
+    max-height: 50vh;
+  }
+  
+  .generic-file-container {
+    padding: 1.5rem;
+  }
+  
+  .generic-file-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .error-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .job-file-viewer {
+    padding: 0 0.5rem;
+  }
+  
+  .file-viewer-title {
+    font-size: 1rem;
+  }
+  
+  .pdf-viewer-container {
+    padding: 0.25rem;
+    max-height: 50vh;
+  }
+  
+  .docx-container {
+    padding: 0.5rem;
+    max-height: 25rem;
+    font-size: 0.75rem;
+    overflow-x: auto;
+  }
+  
+  .docx-container .docx {
+    min-width: 100% !important;
+    transform: scale(0.75) !important;
+    transform-origin: top left !important;
+  }
+  
+  .txt-viewer-container,
+  .txt-viewer-wrapper {
+    min-height: 18rem;
+    height: 18rem;
+  }
+  
+  .generic-file-container {
+    padding: 1rem;
+  }
+  
+  .generic-file-icon {
+    font-size: 2.5rem;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

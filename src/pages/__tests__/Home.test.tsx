@@ -26,12 +26,23 @@ vi.mock('react-toastify', () => ({
   }
 }))
 
-// Mock API endpoints
+// Mock API endpoints with updated structure
 vi.mock('../../utils/api', () => ({
+  API_BASE_URL: 'http://localhost:5268/api',
   API_ENDPOINTS: {
     jobs: {
+      base: 'http://localhost:5268/api/jobs',
       analyze: 'http://localhost:5268/api/jobs/analyze',
-      upload: 'http://localhost:5268/api/jobs/upload'
+      upload: 'http://localhost:5268/api/jobs/upload',
+      getById: (id: string) => `http://localhost:5268/api/jobs/${id}`,
+      deleteById: (id: string) => `http://localhost:5268/api/jobs/${id}`,
+      getByEmail: (email: string) => `http://localhost:5268/api/jobs/user/${email}`,
+    },
+    files: {
+      base: 'http://localhost:5268/api/files',
+      getFile: (storedFileName: string) => `http://localhost:5268/api/files/${storedFileName}`,
+      viewFile: (storedFileName: string) => `http://localhost:5268/api/files/${storedFileName}/view`,
+      downloadFile: (storedFileName: string) => `http://localhost:5268/api/files/${storedFileName}/download`,
     }
   }
 }))

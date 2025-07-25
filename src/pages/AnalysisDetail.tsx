@@ -1,4 +1,5 @@
 
+
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -7,7 +8,6 @@ import html2pdf from 'html2pdf.js';
 import '../styles/analysis.css'
 import { API_ENDPOINTS } from '../utils/api';
 import ImprovedJobDescription from '../components/ImprovedJobDescription';
-import JobDescriptionExtractor from '../components/JobDescriptionExtractor';
 import JobFileViewer from '../components/JobFileViewer';
 import { API_BASE_URL } from '../utils/api'; // Make sure this is imported
 
@@ -302,7 +302,7 @@ const AnalysisDetail: React.FC = () => {
       {/* Show job role and industry only if not all scores are zero */}
       {!allScoresZero && result.analysis.role && (
         <div className="card mb-4">
-          <div className="card-header bg-tri text-white">
+          <div className="card-header  bg-secondary text-white">
             <h5 className="mb-0">Job Role </h5>
           </div>
           <div className="card-body">
@@ -313,7 +313,7 @@ const AnalysisDetail: React.FC = () => {
 
       {!allScoresZero && result.analysis.industry && (
         <div className="card mb-4">
-          <div className="card-header bg-success text-white">
+          <div className="card-header  bg-secondary text-white">
             <h5 className="mb-0">Job Industry </h5>
           </div>
           <div className="card-body">
@@ -325,7 +325,7 @@ const AnalysisDetail: React.FC = () => {
       {/* Always show overall assessment */}
       {result.analysis.overall_assessment && (
         <div className="card mb-4">
-          <div className="card-header bg-primary text-white">
+          <div className="card-header bg-secondary text-white">
             <h5 className="mb-0">Overall Assessment </h5>
           </div>
           <div className="card-body">
@@ -340,7 +340,7 @@ const AnalysisDetail: React.FC = () => {
           {/* Issues Section */}
           <div className="card mb-4">
             <div className="card-header bg-warning text-dark">
-              <h5 className="mb-0">Detected Issues</h5>
+              <h5 className="mb-0">Detected  Biased Issues</h5>
             </div>
             <div className="card-body">
               {(!result.analysis.issues || result.analysis.issues.length === 0) ? (
@@ -421,7 +421,7 @@ const AnalysisDetail: React.FC = () => {
           {/* SEO Keywords */}
           {result.analysis.seo_keywords && result.analysis.seo_keywords.length > 0 && (
             <div className="card mb-4">
-              <div className="card-header bg-info text-dark">
+              <div className="card-header  bg-secondary text-dark">
                 <h5 className="mb-0">SEO Keywords to Add</h5>
               </div>
               <div className="card-body">
@@ -430,6 +430,58 @@ const AnalysisDetail: React.FC = () => {
                     <p className="mb-3 bg-light p-2 rounded">{keyword}</p>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Side-by-Side Comparison Section */}
+          {result.improvedText && (
+            <div className="card mb-4">
+              <div className="card-header bg-primary text-white">
+                <h5 className="mb-0">📋 Compare: Original vs Improved</h5>
+                <small className="opacity-75">
+                  Side-by-side comparison to see the improvements made to your job description
+                </small>
+              </div>
+              <div className="card-body p-0">
+                <div className="row g-0">
+                  <div className="col-md-6 border-end">
+                    <div className="comparison-section">
+                      <div className="comparison-header  text-white">
+                        <h6 className="mb-0 p-3">
+                          <i className="bi bi-file-text me-2"></i>
+                          Original Job Description
+                        </h6>
+                      </div>
+                      <div className="comparison-content p-3">
+                        {result.fileUrl ? (
+                          <JobFileViewer job={result} />
+                        ) : (
+                          <div className="original-document">
+                            {result.originalText.split('\n').map((paragraph, index) => (
+                              <p key={index} className="mb-3" style={{ lineHeight: '1.6' }}>
+                                {paragraph}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="comparison-section">
+                      <div className="comparison-header  text-white">
+                        <h6 className="mb-0 p-3">
+                          <i className="bi bi-file-check me-2"></i>
+                          Improved Job Description
+                        </h6>
+                      </div>
+                      <div className="comparison-content p-0">
+                        <ImprovedJobDescription improvedText={result.improvedText} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}

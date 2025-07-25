@@ -1,17 +1,22 @@
 
 
-// export default Analysis;
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
+import { toast } from 'react-toastify';
+import html2pdf from 'html2pdf.js';
 import type { RootState } from "../store/store";
 import ImprovedJobDescription from "../components/ImprovedJobDescription";
+import JobFileViewer from '../components/JobFileViewer';
+import { API_ENDPOINTS } from '../utils/api';
 import "../styles/analysis.css";
 
 const Analysis: React.FC = () => {
   const navigate = useNavigate();
   const result = useSelector((state: RootState) => state.result.data);
-  console.log(result);
+  const [isDownloading, setIsDownloading] = useState(false);
+  
+  console.log("Analysis result:", result);
 
   useEffect(() => {
     if (!result) {
@@ -30,8 +35,42 @@ const Analysis: React.FC = () => {
     );
   }
 
-  const handleDownload = () => {
-    navigate("/download");
+  const handleDownload = async () => {
+    const content = document.getElementById('analysis-content');
+    if (content) {
+      try {
+        setIsDownloading(true);
+        // Clone the element to avoid modifying the original
+        const clonedContent = content.cloneNode(true) as HTMLElement;
+
+        // Remove all buttons and navigation elements
+        const buttonsToRemove = clonedContent.querySelectorAll('.btn, button, .no-print');
+        buttonsToRemove.forEach(btn => btn.remove());
+
+        // Create a temporary container
+        const tempContainer = document.createElement('div');
+        tempContainer.appendChild(clonedContent);
+        document.body.appendChild(tempContainer);
+        
+        const opt = {
+          margin: 1,
+          filename: `jd-analysis-${Date.now()}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        await html2pdf().set(opt).from(tempContainer).save();
+        // Clean up
+        document.body.removeChild(tempContainer);
+        toast.success('PDF downloaded successfully');
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        toast.error('Failed to generate PDF');
+      } finally {
+        setIsDownloading(false);
+      }
+    }
   };
 
   // Check if all three scores are 0
@@ -39,76 +78,171 @@ const Analysis: React.FC = () => {
                        result.inclusivity_score === 0 && 
                        result.clarity_score === 0;
 
-  // Color for bias score (lower is better)
-  const getBiasColor = (score: number) => {
-    if (score >= 0.8) return "danger"; // High bias - Red
-    if (score >= 0.6) return "warning"; // Medium bias - Yellow
-    return "success"; // Low bias - Green
+  // For bias: low bias = green, high bias = red
+  const getBiasScoreColor = (score: number) => {
+    if (score >= 0.8) return '#dc3545';     // High bias - Red
+    if (score >= 0.6) return '#ffc107';    // Medium bias - Yellow
+    return '#28a745';                      // Low bias - Green
   };
 
-  // Color for positive scores (higher is better)
-  const getPositiveColor = (score: number) => {
-    if (score >= 0.8) return "success"; // High = Green
-    if (score >= 0.6) return "warning"; // Medium = Yellow
-    return "danger"; // Low = Red
+  // For inclusivity/clarity: high score = green, low score = red
+  const getPositiveScoreColor = (score: number) => {
+    if (score >= 0.8) return '#28a745';    // High score - Green
+    if (score >= 0.6) return '#ffc107';    // Medium score - Yellow
+    return '#dc3545';                       // Low score - Red
   };
+
+  // Get bias score interpretation (inverted logic)
+  const getBiasScoreText = (score: number) => {
+    if (score >= 0.8) return 'High Bias';
+    if (score >= 0.6) return 'Medium Bias';
+    return 'Low Bias';
+  };
+
+  // Get positive score interpretation
+  const getPositiveScoreText = (score: number) => {
+    if (score >= 0.8) return 'Excellent';
+    if (score >= 0.6) return 'Good';
+    return 'Needs Improvement';
+  };
+
+  // Debug logs
+  console.log("File URL:", result.fileUrl);
+  console.log("Stored File Name:", result.storedFileName);
+  console.log("Improved Text:", result.improvedText);
+  console.log("Original Text:", result.originalText);
 
   return (
-    <div className="container py-4" id="analysis-content">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div className="d-flex align-items-center">
-          <h2 className="mb-0">Job Description Analysis</h2>
-        </div>
-        <div className="d-flex align-items-center gap-2">
-          
-          <Link to="/" className="btn btn-primary">
-            Analyze New JD
-          </Link>
+    <div className="analysis-container" id="analysis-content">
+      <div className="d-flex justify-content-between align-items-center mb-4 no-print">
+        <h2>Job Description Analysis</h2>
+        <div>
+          <Link to="/" className="btn btn-primary">Analyze New JD</Link>
         </div>
       </div>
 
-      {/* Show scores only if not all zero */}
+      <div className='mb-3'>
+        <h3>{result.fileName || result.originalFileName || 'Job Description Analysis'}</h3>
+      </div>
+
+      {/* FILE VIEWER SECTION */}
+      {(result.fileUrl || result.storedFileName) && (
+        <div className="card mb-4">
+          <div className="card-header bg-secondary text-white">
+            <h5 className="mb-0">📎 Uploaded File</h5>
+          </div>
+          <div className="card-body">
+            {/* Create a job object that matches what JobFileViewer expects */}
+            <JobFileViewer job={{
+              ...result,
+              fileUrl: result.fileUrl || API_ENDPOINTS.files.viewFile(result.storedFileName),
+              originalFileName: result.originalFileName || result.fileName,
+              contentType: result.contentType,
+              fileSize: result.fileSize
+            }} />
+          </div>
+        </div>
+      )}
+
+     
+
+      {/* Analysis Matrix with Bars */}
       {!allScoresZero && (
-        <div className="row mb-4">
-          <div className="col-md-4 mb-3">
-            <div
-              className={`card border-${getBiasColor(result.bias_score)} h-100`}
-            >
-              <div className="card-body text-center">
-                <h5 className="card-title">Bias Score</h5>
-                <h2 className={`text-${getBiasColor(result.bias_score)}`}>
-                  {(result.bias_score * 100).toFixed(1)}%
-                </h2>
-              </div>
-            </div>
+        <div className="card mb-4">
+          <div className="card-header bg-primary text-white">
+            <h5 className="mb-0">📊 Analysis Matrix</h5>
           </div>
-          <div className="col-md-4 mb-3">
-            <div
-              className={`card border-${getPositiveColor(
-                result.inclusivity_score
-              )} h-100`}
-            >
-              <div className="card-body text-center">
-                <h5 className="card-title">Inclusivity Score</h5>
-                <h2
-                  className={`text-${getPositiveColor(result.inclusivity_score)}`}
+          <div className="card-body p-4">
+            {/* Bias Score Bar */}
+            <div className="score-item">
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <h6 className="mb-0 fw-bold">Bias Level</h6>
+                <div className="d-flex align-items-center">
+                  <span className="badge" style={{ 
+                    backgroundColor: getBiasScoreColor(result.bias_score),
+                    color: 'white',
+                    marginRight: '8px'
+                  }}>
+                    {getBiasScoreText(result.bias_score)}
+                  </span>
+                  <strong>{(result.bias_score * 100).toFixed(1)}%</strong>
+                </div>
+              </div>
+              <div className="progress">
+                <div 
+                  className="progress-bar" 
+                  role="progressbar" 
+                  style={{ 
+                    width: `${result.bias_score * 100}%`,
+                    backgroundColor: getBiasScoreColor(result.bias_score)
+                  }}
+                  aria-valuenow={result.bias_score * 100} 
+                  aria-valuemin={0} 
+                  aria-valuemax={100}
                 >
-                  {(result.inclusivity_score * 100).toFixed(1)}%
-                </h2>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="col-md-4 mb-3">
-            <div
-              className={`card border-${getPositiveColor(
-                result.clarity_score
-              )} h-100`}
-            >
-              <div className="card-body text-center">
-                <h5 className="card-title">Clarity Score</h5>
-                <h2 className={`text-${getPositiveColor(result.clarity_score)}`}>
-                  {(result.clarity_score * 100).toFixed(1)}%
-                </h2>
+
+            {/* Inclusivity Score Bar */}
+            <div className="score-item">
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <h6 className="mb-0 fw-bold">Inclusivity Score</h6>
+                <div className="d-flex align-items-center">
+                  <span className="badge" style={{ 
+                    backgroundColor: getPositiveScoreColor(result.inclusivity_score),
+                    color: 'white',
+                    marginRight: '8px'
+                  }}>
+                    {getPositiveScoreText(result.inclusivity_score)}
+                  </span>
+                  <strong>{(result.inclusivity_score * 100).toFixed(1)}%</strong>
+                </div>
+              </div>
+              <div className="progress">
+                <div 
+                  className="progress-bar" 
+                  role="progressbar" 
+                  style={{ 
+                    width: `${result.inclusivity_score * 100}%`,
+                    backgroundColor: getPositiveScoreColor(result.inclusivity_score)
+                  }}
+                  aria-valuenow={result.inclusivity_score * 100} 
+                  aria-valuemin={0} 
+                  aria-valuemax={100}
+                >
+                </div>
+              </div>
+            </div>
+
+            {/* Clarity Score Bar */}
+            <div className="score-item">
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <h6 className="mb-0 fw-bold">Clarity Score</h6>
+                <div className="d-flex align-items-center">
+                  <span className="badge" style={{ 
+                    backgroundColor: getPositiveScoreColor(result.clarity_score),
+                    color: 'white',
+                    marginRight: '8px'
+                  }}>
+                    {getPositiveScoreText(result.clarity_score)}
+                  </span>
+                  <strong>{(result.clarity_score * 100).toFixed(1)}%</strong>
+                </div>
+              </div>
+              <div className="progress">
+                <div 
+                  className="progress-bar" 
+                  role="progressbar" 
+                  style={{ 
+                    width: `${result.clarity_score * 100}%`,
+                    backgroundColor: getPositiveScoreColor(result.clarity_score)
+                  }}
+                  aria-valuenow={result.clarity_score * 100} 
+                  aria-valuemin={0} 
+                  aria-valuemax={100}
+                >
+                </div>
               </div>
             </div>
           </div>
@@ -118,8 +252,8 @@ const Analysis: React.FC = () => {
       {/* Show job role and industry only if not all scores are zero */}
       {!allScoresZero && result.role && (
         <div className="card mb-4">
-          <div className="card-header bg-tri text-white">
-            <h5 className="mb-0">Job Role </h5>
+          <div className="card-header  bg-secondary text-white">
+            <h5 className="mb-0">Job Role</h5>
           </div>
           <div className="card-body">
             <p className="lead mb-0">{result.role}</p>
@@ -129,8 +263,8 @@ const Analysis: React.FC = () => {
       
       {!allScoresZero && result.industry && (
         <div className="card mb-4">
-          <div className="card-header bg-success text-white">
-            <h5 className="mb-0">Job Industry </h5>
+          <div className="card-header  bg-secondary text-white">
+            <h5 className="mb-0">Job Industry</h5>
           </div>
           <div className="card-body">
             <p className="lead mb-0">{result.industry}</p>
@@ -141,8 +275,8 @@ const Analysis: React.FC = () => {
       {/* Always show overall assessment */}
       {result.overall_assessment && (
         <div className="card mb-4">
-          <div className="card-header bg-primary text-white">
-            <h5 className="mb-0">Overall Assessment </h5>
+          <div className="card-header  bg-secondary text-white">
+            <h5 className="mb-0">Overall Assessment</h5>
           </div>
           <div className="card-body">
             <p className="lead mb-0">{result.overall_assessment}</p>
@@ -156,22 +290,19 @@ const Analysis: React.FC = () => {
           {/* Issues Section */}
           <div className="card mb-4">
             <div className="card-header bg-warning text-dark">
-              <h5 className="mb-0">Detected Issues</h5>
+              <h5 className="mb-0">Detected Biased Issues</h5>
             </div>
             <div className="card-body">
               {!result.issues || result.issues.length === 0 ? (
                 <div className="text-center py-4">
-                  <i
-                    className="bi bi-check-circle text-success fs-2"
-                    
-                  ></i>
+                  <i className="bi bi-check-circle text-success" style={{ fontSize: '2rem' }}></i>
                   <p className="lead mb-0 mt-2">
                     No issues found! Your job description looks good.
                   </p>
                 </div>
               ) : (
                 result.issues.map((issue: any, index: number) => (
-                  <div key={index} className="mb-3 p-3 border-bottom">
+                  <div key={index} className="issue-item mb-3">
                     <div className="d-flex justify-content-between align-items-start">
                       <div>
                         <h6 className="mb-1">Type: {issue.type}</h6>
@@ -197,52 +328,37 @@ const Analysis: React.FC = () => {
               )}
             </div>
           </div>
-          {/* Improved Job Description Section */}
-          {result.improvedText && (
-            <div className="card mb-4">
-              <div className="card-header   text-white">
-                <h5 className="mb-0">📝 Improved Job Description</h5>
-                <small className="opacity-75">
-                  Here's your job description with all issues resolved and optimized for better clarity and inclusivity
-                </small>
-              </div>
-              <div className="card-body p-0">
-                <ImprovedJobDescription improvedText={result.improved_text} />
-              </div>
-            </div>
-          )}
 
-          {/* Suggestions Section */}
+         
+
+          {/* Suggestions Section - NOW ALWAYS SHOWN */}
           <div className="card mb-4">
             <div className="card-header bg-info text-dark">
-              <h5 className="mb-0">Improvement Suggestions</h5>
+              <h5 className="mb-0">Improvement Suggestions for Inclusiveness and Clarity Issues</h5>
             </div>
             <div className="card-body">
               {!result.suggestions || result.suggestions.length === 0 ? (
                 <div className="text-center py-4">
-                  <i
-                    className="bi bi-lightbulb text-info fs-2"
-                    
-                  ></i>
+                  <i className="bi bi-lightbulb text-info" style={{ fontSize: '2rem' }}></i>
                   <p className="lead mb-0 mt-2">
                     No suggestions needed! Your job description is well-written.
                   </p>
                 </div>
               ) : (
                 result.suggestions.map((suggestion: any, index: number) => (
-                  <div key={index} className="mb-3 p-3 border-bottom">
+                  <div key={index} className="suggestion-item mb-3">
+                    {suggestion.category && (
+                      <>
+                        <h6 className="text-primary mb-2">Category:</h6>
+                        <p className="mb-3 bg-light p-2 rounded">{suggestion.category}</p>
+                      </>
+                    )}
                     <h6 className="text-primary mb-2">Original Text:</h6>
-                    <p className="mb-3 bg-light p-2 rounded">
-                      {suggestion.original}
-                    </p>
+                    <div className="original-text mb-3">{suggestion.original}</div>
                     <h6 className="text-success mb-2">Improved Version:</h6>
-                    <p className="mb-3 bg-light p-2 rounded">
-                      {suggestion.improved}
-                    </p>
-                    <p className="text-muted mb-0">
-                      <small>
-                        <strong>Rationale:</strong> {suggestion.rationale}
-                      </small>
+                    <div className="improved-text mb-3">{suggestion.improved}</div>
+                    <p className="rationale mb-0">
+                      <small><strong>Rationale:</strong> {suggestion.rationale}</small>
                     </p>
                   </div>
                 ))
@@ -250,16 +366,31 @@ const Analysis: React.FC = () => {
             </div>
           </div>
 
-          {/* SEO keywords */}
+           {/* Improved Job Description Section - MOVED BEFORE SUGGESTIONS */}
+          {result.improvedText && result.improvedText.trim() && (
+            <div className="card mb-4">
+              <div className="card-header bg-success text-white">
+                <h5 className="mb-0">📝 Improved Job Description</h5>
+                <small className="opacity-75">
+                  Here's your job description with all issues resolved and optimized for better clarity and inclusivity
+                </small>
+              </div>
+              <div className="card-body p-0">
+                <ImprovedJobDescription improvedText={result.improvedText} />
+              </div>
+            </div>
+          )}
+
+          {/* SEO Keywords */}
           {result.seo_keywords && result.seo_keywords.length > 0 && (
             <div className="card mb-4">
-              <div className="card-header bg-info text-dark">
-                <h5 className="mb-0">SEO keywords to add in the text</h5>
+              <div className="card-header  bg-secondary text-dark">
+                <h5 className="mb-0">SEO Keywords to Add</h5>
               </div>
               <div className="card-body">
-                {result.seo_keywords.map((seo_keyword: any, index: number) => (
+                {result.seo_keywords.map((keyword: any, index: number) => (
                   <div key={index} className="mb-3 p-3 border-bottom">
-                    <p className="mb-3 bg-light p-2 rounded">{seo_keyword}</p>
+                    <p className="mb-3 bg-light p-2 rounded">{keyword}</p>
                   </div>
                 ))}
               </div>
@@ -268,9 +399,22 @@ const Analysis: React.FC = () => {
 
           {/* Download Button */}
           <div className="text-center mt-4 mb-5 no-print">
-            <button onClick={handleDownload} className="btn btn-success btn-lg">
-              <i className="bi bi-download me-2"></i>
-              Download Analysis Report (PDF)
+            <button 
+              onClick={handleDownload} 
+              className="btn btn-success btn-lg"
+              disabled={isDownloading}
+            >
+              {isDownloading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Generating PDF...
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-download me-2"></i>
+                  Download Analysis Report (PDF)
+                </>
+              )}
             </button>
           </div>
         </>

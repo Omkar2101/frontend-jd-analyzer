@@ -1,0 +1,123 @@
+# Continuous Integration Workflow
+# Handles code quality, testing, and building for React/Vite frontend
+
+name: CI - Build and Test
+
+# Trigger conditions
+on:
+  # Run on pushes to specific branches
+  push:
+    branches: 
+      - main
+      - ui 
+      - feature/localstorage-update
+      -formatjd
+  
+  # Run on pull requests targeting specific branches
+  pull_request:
+    branches: 
+      - main
+      - ui 
+      - feature/localstorage-update
+
+# Define reusable environment variables
+env:
+  NODE_VERSION: 20
+  CACHE_DEPENDENCY_PATH: package-lock.json
+
+jobs:
+  # Main CI job for building and testing
+  ci:
+    name: Build, Test & Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Get the source code
+      - name:  Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history for better analysis
+          fetch-depth: 0
+
+      # Step 2: Setup Node.js environment with caching
+      - name:  Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          # Cache npm dependencies for faster builds
+          cache: 'npm'
+          cache-dependency-path: ${{ env.CACHE_DEPENDENCY_PATH }}
+
+      # Step 3: Install dependencies
+      # Using 'npm ci' for faster, reliable, reproducible builds
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      # Step 4: Run linting (if you have ESLint configured)
+      # Uncomment if you have linting setup
+      # - name: 🔍 Run ESLint
+      #   run: npm run lint
+
+      #Step 5: Type checking (if using TypeScript)
+      
+      - name: Type check
+        run: npm run type-check
+
+      # Step 6: Run unit tests with coverage
+      - name:  Run tests with coverage
+        run: npm run test:coverage
+        env:
+          # Ensure tests run in CI mode
+          CI: true
+
+      # Step 7: Upload test coverage reports
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        if: success()
+        with:
+          # File path to coverage report
+          file: ./coverage/lcov.info
+          # Fail CI if upload fails
+          fail_ci_if_error: false
+          verbose: true
+
+      # Step 8: Build production bundle
+      - name:  Build production bundle
+        run: npm run build
+        env:
+          # Set to production for optimized build
+          NODE_ENV: production
+
+      # Step 9: Check build output size (optional quality check)
+      - name:  Analyze bundle size
+        run: |
+          echo "Build completed successfully!"
+          echo "Build output size:"
+          du -sh dist/
+          ls -la dist/
+
+      # Step 10: Upload build artifacts for CD workflow
+      - name: ⬆ Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build-${{ github.sha }}
+          path: dist/
+          # Keep artifacts for 7 days
+          retention-days: 7
+          # Compress for faster upload/download
+          compression-level: 6
+
+      # Step 11: Upload source code for Docker build (if needed)
+      - name:  Upload source for Docker
+        uses: actions/upload-artifact@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: source-code-${{ github.sha }}
+          path: |
+            .
+            !node_modules
+            !.git
+            !dist
+          retention-days: 1
+
+ 

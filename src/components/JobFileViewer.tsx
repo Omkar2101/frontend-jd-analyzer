@@ -1,6 +1,5 @@
 
 
-
 // src/components/JobFileViewer.tsx
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { API_ENDPOINTS } from '../utils/api';
@@ -9,6 +8,7 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import DocViewer, { DocViewerRenderers } from 'react-doc-viewer';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import '../styles/jobFileViewer.css';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -42,7 +42,6 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
   const [pageNumber, setPageNumber] = useState(1);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
-  const [scale, setScale] = useState(1.0);
 
   // TXT file states
   const [txtError, setTxtError] = useState<string | null>(null);
@@ -146,26 +145,6 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
     console.error('Error loading page:', error);
   };
 
-  // Navigation functions
-  const goToPrevPage = () => {
-    setPageNumber(prevPageNumber => Math.max(prevPageNumber - 1, 1));
-  };
-
-  const goToNextPage = () => {
-    setPageNumber(prevPageNumber => Math.min(prevPageNumber + 1, numPages || 1));
-  };
-
-  const goToPage = (page: number) => {
-    if (page >= 1 && page <= (numPages || 1)) {
-      setPageNumber(page);
-    }
-  };
-
-  // Zoom functions
-  const zoomIn = () => setScale(prev => Math.min(prev + 0.25, 3));
-  const zoomOut = () => setScale(prev => Math.max(prev - 0.25, 0.5));
-  const resetZoom = () => setScale(1.0);
-
   // TXT error handler
   const handleTxtError = (error: any) => {
     console.error('TXT file viewer error:', error);
@@ -183,9 +162,9 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
     
     if (!job.fileUrl || !storedFileName) {
       return (
-        <div className="p-4 border rounded bg-light text-center">
-          <i className="bi bi-file-text" style={{ fontSize: '2rem', color: '#6c757d' }}></i>
-          <p className="mt-2 mb-0 text-muted">No file attached</p>
+        <div className="no-file-container">
+          <div className="no-file-icon">📄</div>
+          <p className="no-file-text">No file attached</p>
         </div>
       );
     }
@@ -202,17 +181,13 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
     if (isTxt) {
       return (
         <div>
-          
-
           {txtError && (
-            <div className="alert alert-warning mb-3">
-              <i className="bi bi-exclamation-triangle me-2"></i>
-              <strong>Text Viewer Error</strong>
-              <br />
-              {txtError}
-              <div className="mt-2">
+            <div className="error-container">
+              <div className="error-title">⚠️ Text Viewer Error</div>
+              <div>{txtError}</div>
+              <div className="error-actions">
                 <button 
-                  className="btn btn-sm btn-outline-warning me-2"
+                  className="btn btn-sm btn-outline-danger"
                   onClick={() => setTxtError(null)}
                 >
                   Try Again
@@ -222,20 +197,13 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
                   className="btn btn-sm btn-outline-primary"
                   download={job.originalFileName}
                 >
-                  <i className="bi bi-download me-1"></i>
-                  Download File
+                  📥 Download File
                 </a>
               </div>
             </div>
           )}
 
-          <div 
-            className="txt-viewer-container border rounded"
-            style={{ 
-              minHeight: '400px',
-              backgroundColor: '#f8f9fa'
-            }}
-          >
+          <div className="txt-viewer-container">
             <DocViewer
               documents={txtDocuments}
               pluginRenderers={DocViewerRenderers}
@@ -255,19 +223,12 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
                 text_tertiary: "#6c757d",
                 disableThemeScrollbar: false
               }}
-              style={{ 
-                height: '400px',
-                border: 'none'
-              }}
+              className="txt-viewer-wrapper"
             />
           </div>
 
-         
-
-          <div className="mt-2 text-center">
-            <small className="text-muted">
-              Text file loaded successfully using react-doc-viewer
-            </small>
+          <div className="txt-success-message">
+            Text file loaded successfully using react-doc-viewer
           </div>
         </div>
       );
@@ -276,21 +237,18 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
     // For images - always show inline
     if (isImage) {
       return (
-        <div className="text-center">
+        <div className="image-container">
           <img 
             src={API_ENDPOINTS.files.viewFile(storedFileName)}
             alt={job.originalFileName || 'Uploaded image'}
-            className="img-fluid rounded border"
-            style={{ maxWidth: '100%', maxHeight: '600px', objectFit: 'contain' }}
+            className="image-preview"
             onError={(e) => {
               console.error('Error loading image:', e);
               (e.target as HTMLImageElement).style.display = 'none';
             }}
           />
-          <div className="mt-3">
-            <small className="text-muted">
-              {job.originalFileName} • {(job.fileSize / 1024).toFixed(2)} KB
-            </small>
+          <div className="image-info">
+            {job.originalFileName} • {(job.fileSize / 1024).toFixed(2)} KB
           </div>
         </div>
       );
@@ -300,47 +258,28 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
     if (isPdf) {
       return (
         <div>
-          
-
-          
-          {/* PDF Viewer Container */}
-          <div 
-            className="pdf-viewer-container border rounded"
-            style={{ 
-              maxHeight: '700px', 
-              overflowY: 'auto',
-              backgroundColor: '#f5f5f5',
-              padding: '20px',
-              display: 'flex',
-              justifyContent: 'center'
-            }}
-          >
+          <div className="pdf-viewer-container">
             <Document
               file={API_ENDPOINTS.files.viewFile(storedFileName)}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
               loading={
-                <div className="text-center py-5">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading PDF...</span>
-                  </div>
-                  <p className="mt-3 mb-0">Loading PDF document...</p>
+                <div className="loading-container">
+                  <div className="spinner"></div>
+                  <p className="loading-text">Loading PDF document...</p>
                 </div>
               }
               error={
-                <div className="alert alert-danger">
-                  <i className="bi bi-exclamation-triangle me-2"></i>
-                  <strong>Failed to load PDF</strong>
-                  <br />
-                  <small>Please try downloading the file or contact support if the issue persists.</small>
-                  <div className="mt-2">
+                <div className="error-container">
+                  <div className="error-title">⚠️ Failed to load PDF</div>
+                  <div>Please try downloading the file or contact support if the issue persists.</div>
+                  <div className="error-actions">
                     <a 
                       href={API_ENDPOINTS.files.downloadFile(storedFileName)}
                       className="btn btn-sm btn-outline-primary"
                       download={job.originalFileName}
                     >
-                      <i className="bi bi-download me-1"></i>
-                      Download PDF
+                      📥 Download PDF
                     </a>
                   </div>
                 </div>
@@ -352,7 +291,6 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
             >
               <Page
                 pageNumber={pageNumber}
-                scale={scale}
                 onLoadSuccess={onPageLoadSuccess}
                 onLoadError={onPageLoadError}
                 onRenderError={onPageLoadError}
@@ -363,12 +301,9 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
             </Document>
           </div>
 
-          {/* PDF Info */}
-          <div className="mt-3 text-center">
-            <small className="text-muted">
-              {job.originalFileName} • {(job.fileSize / 1024).toFixed(2)} KB
-              {numPages && ` • ${numPages} pages`}
-            </small>
+          <div className="pdf-info">
+            {job.originalFileName} • {(job.fileSize / 1024).toFixed(2)} KB
+            {numPages && ` • ${numPages} pages`}
           </div>
         </div>
       );
@@ -379,83 +314,59 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
       return (
         <div>
           {isLoading && (
-            <div className="text-center py-4">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading document...</span>
-              </div>
-              <p className="mt-2">Loading document preview...</p>
+            <div className="loading-container">
+              <div className="spinner"></div>
+              <p className="loading-text">Loading document preview...</p>
             </div>
           )}
 
           {error && (
-            <div className="alert alert-danger">
-              <i className="bi bi-exclamation-triangle me-2"></i>
-              <strong>Failed to load document preview</strong>
-              <br />
-              {error}
-              <div className="mt-2">
+            <div className="error-container">
+              <div className="error-title">⚠️ Failed to load document preview</div>
+              <div>{error}</div>
+              <div className="error-actions">
                 <button 
-                  className="btn btn-sm btn-outline-danger me-2" 
+                  className="btn btn-sm btn-outline-danger" 
                   onClick={loadDocxFile}
                 >
                   Try Again
                 </button>
-                
               </div>
             </div>
           )}
 
-          {/* DOCX Container */}
           <div 
             ref={docxContainerRef}
-            className="border rounded p-3 bg-white"
-            style={{ 
-              minHeight: '400px',
-              maxHeight: '800px',
-              overflowY: 'auto',
-              fontSize: '14px',
-              lineHeight: '1.6'
-            }}
+            className="docx-container"
           />
-
-         
         </div>
       );
     }
 
     // For other file types
     return (
-      <div className="p-4 border rounded bg-light">
-        <div className="text-center mb-3">
-          <i 
-            className="bi bi-file-earmark-text"
-            style={{ fontSize: '3rem', color: '#6c757d' }}
-          ></i>
-        </div>
-        <div className="text-center">
-          <h6 className="mb-2">{job.originalFileName}</h6>
-          <p className="text-muted mb-3">
-            Size: {(job.fileSize / 1024).toFixed(2)} KB
-          </p>
-          <div className="d-flex gap-2 justify-content-center">
-            <a 
-              href={API_ENDPOINTS.files.downloadFile(storedFileName)}
-              className="btn btn-primary btn-sm"
-              download={job.originalFileName}
-            >
-              <i className="bi bi-download me-1"></i>
-              Download File
-            </a>
-            <a 
-              href={API_ENDPOINTS.files.viewFile(storedFileName)}
-              className="btn btn-outline-secondary btn-sm"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <i className="bi bi-eye me-1"></i>
-              Try View
-            </a>
-          </div>
+      <div className="generic-file-container">
+        <div className="generic-file-icon">📄</div>
+        <h6 className="generic-file-title">{job.originalFileName}</h6>
+        <p className="generic-file-size">
+          Size: {(job.fileSize / 1024).toFixed(2)} KB
+        </p>
+        <div className="generic-file-actions">
+          <a 
+            href={API_ENDPOINTS.files.downloadFile(storedFileName)}
+            className="btn btn-primary btn-sm"
+            download={job.originalFileName}
+          >
+            📥 Download File
+          </a>
+          <a 
+            href={API_ENDPOINTS.files.viewFile(storedFileName)}
+            className="btn btn-outline-secondary btn-sm"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            👁️ Try View
+          </a>
         </div>
       </div>
     );
@@ -463,13 +374,12 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
 
   return (
     <div className="job-file-viewer">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h6 className="mb-0">
-          <i className="bi bi-paperclip me-2"></i>
-          Original Uploaded File
+      <div className="file-viewer-header">
+        <h6 className="file-viewer-title">
+          📎 Original Uploaded File
         </h6>
         {job.fileUrl && (
-          <small className="text-muted">
+          <small className="file-type-info">
             {job.contentType}
           </small>
         )}
@@ -480,4 +390,3 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
 };
 
 export default JobFileViewer;
-
