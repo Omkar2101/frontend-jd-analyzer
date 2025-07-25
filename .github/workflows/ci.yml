@@ -54,9 +54,9 @@ jobs:
         run: npm ci --prefer-offline --no-audit
 
       # Step 4: Run linting (if you have ESLint configured)
-      # Uncomment if you have linting setup
-      # - name: 🔍 Run ESLint
-      #   run: npm run lint
+      
+      - name: Run ESLint
+        run: npm run lint
 
       #Step 5: Type checking (if using TypeScript)
       

@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
+    "type-check": "tsc --noEmit",
     "test:ui": "vitest --ui"
   },
   "dependencies": {
