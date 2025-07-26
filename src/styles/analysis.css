@@ -5,14 +5,27 @@
 }
 
 .score-item {
-  text-align: center;
-  margin-bottom: 1rem;
+  text-align: left;
+  margin-bottom: 2rem;
+}
+
+.score-item:last-child {
+  margin-bottom: 0;
 }
 
 .score-item .progress {
-  height: 20px;
+  height: 25px;
   margin: 10px 0;
-  border-radius: 10px;
+  border-radius: 12px;
+  background-color: #e9ecef;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.score-item .progress-bar {
+  border-radius: 12px;
+  transition: width 0.6s ease;
+  font-size: 12px;
+  line-height: 25px;
 }
 
 .issue-item {
@@ -20,6 +33,11 @@
   border-radius: 8px;
   background-color: rgba(0, 0, 0, 0.02);
   border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+}
+
+.issue-item:last-child {
+  margin-bottom: 0;
 }
 
 .suggestion-item {
@@ -27,39 +45,234 @@
   background-color: rgba(0, 0, 0, 0.02);
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+}
+
+.suggestion-item:last-child {
+  margin-bottom: 0;
 }
 
 .original-text {
-  padding: 10px;
+  padding: 12px;
   background-color: rgba(255, 0, 0, 0.05);
-  border-radius: 4px;
+  border-radius: 6px;
+  border-left: 4px solid #dc3545;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.5;
 }
 
 .improved-text {
-  padding: 10px;
+  padding: 12px;
   background-color: rgba(0, 255, 0, 0.05);
-  border-radius: 4px;
+  border-radius: 6px;
+  border-left: 4px solid #28a745;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.5;
 }
 
 .rationale {
   font-style: italic;
   color: #666;
+  font-size: 0.9em;
+  line-height: 1.4;
 }
 
 .bg-tri {
   background-color: var(--tri-color) !important;
 }
 
+/* Analysis Matrix specific styles */
+.analysis-matrix {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.analysis-matrix .card-header {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border-bottom: none;
+}
+
+.score-label {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #343a40;
+}
+
+.score-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #495057;
+}
+
+.score-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+/* Enhanced card styling */
+.card {
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  font-weight: 600;
+}
+
+/* Comparison Section Styles */
+.comparison-section {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.comparison-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.comparison-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 900px;
+  background-color: #fafafa;
+}
+
+.original-document {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background-color: rgba(220, 53, 69, 0.02);
+  border-radius: 6px;
+  padding: 15px;
+  border-left: 4px solid #dc3545;
+}
+
+.improved-document {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background-color: rgba(40, 167, 69, 0.02);
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: -120px;
+  
+}
+
+
+
+.comparison-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.comparison-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.comparison-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.comparison-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .analysis-container {
+    padding: 15px;
+  }
+  
+  .score-item {
+    margin-bottom: 1.5rem;
+  }
+  
+  .score-item .progress {
+    height: 20px;
+  }
+  
+  .issue-item,
+  .suggestion-item {
+    padding: 12px;
+  }
+  
+  .original-text,
+  .improved-text {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  /* Stack comparison columns on mobile */
+  .comparison-content {
+    max-height: 400px;
+  }
+  
+  .original-document,
+  .improved-document {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .analysis-container {
+    padding: 10px;
+  }
+  
+  .score-item .progress {
+    height: 18px;
+  }
+  
+  .score-label,
+  .score-value {
+    font-size: 0.9rem;
+  }
+  
+  .issue-item,
+  .suggestion-item {
+    padding: 10px;
+  }
+
+  .comparison-content {
+    max-height: 300px;
+    padding: 10px;
+  }
+  
+  .original-document,
+  .improved-document {
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+}
+
 /* Print styles for PDF export */
 @media print {
   .analysis-container {
     padding: 0;
+    max-width: 100%;
+    margin: 0;
   }
   
   .card {
     break-inside: avoid;
     page-break-inside: avoid;
     margin-bottom: 20px;
+    box-shadow: none;
+    border: 1px solid #dee2e6;
+  }
+
+  .card-header {
+    background-color: #f8f9fa !important;
+    color: #000 !important;
   }
 
   /* Hide all buttons and download elements */
@@ -83,5 +296,83 @@
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+  }
+
+  /* Print-specific progress bar styling */
+  .score-item .progress {
+    background-color: #e9ecef !important;
+    border: 1px solid #dee2e6;
+  }
+
+  .score-item .progress-bar {
+    background-color: #6c757d !important;
+  }
+
+  /* Ensure text is readable in print */
+  .original-text {
+    background-color: #f8d7da !important;
+    border-left: 3px solid #721c24 !important;
+  }
+
+  .improved-text {
+    background-color: #d4edda !important;
+    border-left: 3px solid #155724 !important;
+  }
+
+  .rationale {
+    color: #495057 !important;
+  }
+
+  /* Print styles for comparison section */
+  .comparison-header {
+    background-color: #f8f9fa !important;
+    color: #000 !important;
+    border-bottom: 1px solid #dee2e6 !important;
+  }
+
+  .comparison-content {
+    max-height: none !important;
+    overflow: visible !important;
+    background-color: #ffffff !important;
+  }
+
+  .original-document {
+    background-color: #f8d7da !important;
+    border-left: 3px solid #721c24 !important;
+    page-break-inside: avoid;
+  }
+
+  .improved-document {
+    background-color: #d4edda !important;
+    border-left: 3px solid #155724 !important;
+    page-break-inside: avoid;
+  }
+
+  /* Page break controls */
+  .score-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .issue-item,
+  .suggestion-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 15px;
+  }
+
+  /* Ensure comparison section prints properly */
+  .row.g-0 {
+    display: block !important;
+  }
+
+  .col-md-6 {
+    width: 100% !important;
+    float: none !important;
+    margin-bottom: 20px;
+  }
+
+  .border-end {
+    border-right: none !important;
   }
 }

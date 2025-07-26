@@ -23,6 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
+#Coverage
+coverage/
 
 # Virtual Environment
 venv/
