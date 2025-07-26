@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import LoginPrompt from "../components/LoginPrompt";
 import { API_ENDPOINTS } from '../utils/api';
 import { useAuth } from "../hooks/useAuth";
+import { handleApiError } from '../utils/errorHandler';
 
 // Text validation function
 function validateJobDescriptionText(text: string): { isValid: boolean; error?: string } {
@@ -85,6 +86,7 @@ function Home() {
   const [inputMethod, setInputMethod] = useState<'text' | 'file'>('text');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [textValidation, setTextValidation] = useState<{ isValid: boolean; error?: string }>({ isValid: true });
+  const [fileValidation, setFileValidation] = useState<{ isValid: boolean; error?: string }>({ isValid: true });
   
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -108,11 +110,46 @@ function Home() {
     }
   }, [text, inputMethod]);
 
+  // Validate file on change
+  useEffect(() => {
+    if (inputMethod === 'file' && file) {
+      const validation = validateFile(file);
+      setFileValidation(validation);
+    } else {
+      setFileValidation({ isValid: true });
+    }
+  }, [file, inputMethod]);
+
+  // File validation function
+  const validateFile = (file: File): { isValid: boolean; error?: string } => {
+    const allowedTypes = ['.txt', '.doc', '.docx', '.pdf', '.jpg', '.jpeg', '.png'];
+    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    
+    if (!allowedTypes.includes(fileExtension)) {
+      return {
+        isValid: false,
+        error: `Invalid file type. Allowed types are: ${allowedTypes.join(', ')}`
+      };
+    }
+    
+    // Check file size (10MB limit)
+    const maxFileSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxFileSize) {
+      return {
+        isValid: false,
+        error: 'File size too large. Maximum allowed size is 10MB.'
+      };
+    }
+    
+    return { isValid: true };
+  };
+
   // Reset other input when method changes
   const handleInputMethodChange = (method: 'text' | 'file') => {
     setInputMethod(method);
     if (method === 'text') {
       setFile(null);
+      setFileValidation({ isValid: true });
     } else {
       setText('');
       setTextValidation({ isValid: true });
@@ -128,9 +165,20 @@ function Home() {
       return;
     }
 
-    // Validate text input before proceeding
+    // Validate input before proceeding
     if (inputMethod === 'text') {
       const validation = validateJobDescriptionText(text);
+      if (!validation.isValid) {
+        toast.error(validation.error);
+        return;
+      }
+    } else if (inputMethod === 'file') {
+      if (!file) {
+        toast.error('Please select a file to upload');
+        return;
+      }
+      
+      const validation = validateFile(file);
       if (!validation.isValid) {
         toast.error(validation.error);
         return;
@@ -144,26 +192,54 @@ function Home() {
       
       let res;
       if (inputMethod === 'text' && text.trim()) {
+        // Show a brief loading message for text analysis
+        toast.info('Analyzing job description...', { 
+          autoClose: 2000, 
+          hideProgressBar: true 
+        });
+        
         res = await axios.post(API_ENDPOINTS.jobs.analyze, { 
           text,
           userEmail 
+        }, {
+          timeout: 60000 // 60 second timeout
         });
       } else if (inputMethod === 'file' && file) {
+        // Show a brief loading message for file analysis
+        toast.info('Processing and analyzing file...', { 
+          autoClose: 2000, 
+          hideProgressBar: true 
+        });
+        
         const formData = new FormData();
         formData.append("file", file);
         formData.append("userEmail", userEmail); 
-        res = await axios.post(API_ENDPOINTS.jobs.upload, formData);
+        
+        res = await axios.post(API_ENDPOINTS.jobs.upload, formData, {
+          timeout: 120000, // 2 minute timeout for file uploads
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        });
       } else {
         toast.error('Please provide a job description');
-        setIsAnalyzing(false);
         return;
       }
-      dispatch(setResult(res.data));
-      navigate('/analysis');
+
+      // Success handling
+      if (res?.data) {
+        dispatch(setResult(res.data));
+        toast.success('Analysis completed successfully!');
+        navigate('/analysis');
+      } else {
+        toast.error('No data received from analysis. Please try again.');
+      }
+      
     } catch (error: any) {
-      const errorMessage = error.response?.data || 'Error analyzing JD. Please try again.';
-      toast.error(errorMessage);
-      console.error(error);
+      // This is where your error handler is used - and it's perfect!
+      console.error('Analysis error:', error);
+      handleApiError(error);
+      
     } finally {
       setIsAnalyzing(false);
     }
@@ -171,7 +247,7 @@ function Home() {
 
   const canAnalyze = inputMethod === 'text' 
     ? text.trim() && textValidation.isValid 
-    : file;
+    : file && fileValidation.isValid;
 
   // Show loading state while auth is being determined
   if (isLoading) {
@@ -218,6 +294,7 @@ function Home() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Paste job description text here"
+              disabled={isAnalyzing}
             />
             {!textValidation.isValid && textValidation.error && (
               <div className="invalid-feedback d-block mb-3">
@@ -234,11 +311,17 @@ function Home() {
               data-testid="file-input"
               type="file"
               accept=".txt,.pdf,.doc,.docx,.jpg,.jpeg,.png"
-              className="form-control mb-3"
+              className={`form-control mb-3 ${fileValidation.isValid ? '' : 'is-invalid'}`}
               onChange={(e) => setFile(e.target.files?.[0] || null)}
+              disabled={isAnalyzing}
             />
+            {!fileValidation.isValid && fileValidation.error && (
+              <div className="invalid-feedback d-block mb-3">
+                {fileValidation.error}
+              </div>
+            )}
             <small className="text-muted d-block mb-3">
-              Accepted file types: .txt, .pdf, .doc, .docx, .jpg, .jpeg, .png
+              Accepted file types: .txt, .pdf, .doc, .docx, .jpg, .jpeg, .png (Max size: 10MB)
             </small>
           </div>
         )}
@@ -277,4 +360,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Home

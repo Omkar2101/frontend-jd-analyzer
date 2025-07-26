@@ -1,4 +1,5 @@
 
+
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '../../test-utils'
 import Home from '../Home'
@@ -23,6 +24,7 @@ vi.mock('react-toastify', () => ({
   toast: {
     error: vi.fn(),
     success: vi.fn(),
+    info: vi.fn(),
   }
 }))
 
@@ -47,7 +49,7 @@ vi.mock('../../utils/api', () => ({
   }
 }))
 
-// CHANGED: Mock useAuth hook instead of localStorage
+// Mock useAuth hook
 let mockUserEmail: string | null = null
 let mockIsLoading = false
 
@@ -59,9 +61,13 @@ vi.mock('../../hooks/useAuth', () => ({
   }))
 }))
 
+// Mock error handler
+vi.mock('../../utils/errorHandler', () => ({
+  handleApiError: vi.fn()
+}))
+
 // Mock Redux hooks with proper state management
-// Create a more flexible mock that can be accessed in tests
-let mockResultData:any= null
+let mockResultData: any = null
 let mockDispatchFn = vi.fn()
 
 vi.mock('react-redux', async () => {
@@ -69,7 +75,6 @@ vi.mock('react-redux', async () => {
   return {
     ...(actual as object),
     useSelector: vi.fn().mockImplementation((selector) => {
-      // Mock the root state structure
       const mockState = {
         result: {
           data: mockResultData
@@ -98,18 +103,6 @@ vi.mock('../../components/LoginPrompt', () => ({
   )
 }))
 
-// Mock localStorage
-const mockLocalStorage = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-}
-Object.defineProperty(window, 'localStorage', {
-  value: mockLocalStorage,
-  writable: true,
-})
-
 describe('Home', () => {
   // Valid job description text that meets all validation requirements
   const validJobDescription = `
@@ -135,17 +128,12 @@ describe('Home', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockLocalStorage.clear()
-    mockLocalStorage.getItem.mockReturnValue(null)
     mockResultData = null
-    mockDispatchFn = vi.fn() // Reset the dispatch function for each test
-
-    // Reset mock user email and loading state
+    mockDispatchFn = vi.fn()
     mockUserEmail = null
     mockIsLoading = false
   })
 
-   // CHANGED: Add test for loading state
   it('shows loading state when auth is loading', () => {
     mockIsLoading = true
     
@@ -166,8 +154,6 @@ describe('Home', () => {
   })
 
   it('switches between text and file input methods', () => {
-
-    // CHANGED: Set user as not loading
     mockIsLoading = false
     render(<Home />)
     
@@ -189,7 +175,6 @@ describe('Home', () => {
   })
 
   it('shows login prompt when analyze is clicked without login', async () => {
-    // CHANGED: Use auth mock instead of localStorage
     mockUserEmail = null
     mockIsLoading = false
 
@@ -219,7 +204,6 @@ describe('Home', () => {
   })
 
   it('submits text analysis when logged in', async () => {
-    // CHANGED: Use auth mock instead of localStorage
     mockUserEmail = 'user@example.com'
     mockIsLoading = false
     
@@ -256,6 +240,9 @@ describe('Home', () => {
         { 
           text: validJobDescription, 
           userEmail: 'user@example.com' 
+        },
+        {
+          timeout: 60000
         }
       )
     })
@@ -285,7 +272,6 @@ describe('Home', () => {
   })
 
   it('disables analyze button when text validation fails', async () => {
-    // CHANGED: Set user as not loading
     mockIsLoading = false
     render(<Home />)
     
@@ -308,7 +294,6 @@ describe('Home', () => {
   })
 
   it('shows error when API call fails', async () => {
-    // CHANGED: Use auth mock instead of localStorage
     mockUserEmail = 'user@example.com'
     mockIsLoading = false
     
@@ -318,8 +303,8 @@ describe('Home', () => {
       response: { data: errorMessage }
     })
     
-    // Import toast mock
-    const { toast } = await import('react-toastify')
+    // Import error handler mock
+    const { handleApiError } = await import('../../utils/errorHandler')
     
     render(<Home />)
     
@@ -339,14 +324,15 @@ describe('Home', () => {
     const analyzeButton = screen.getByRole('button', { name: /analyze/i })
     fireEvent.click(analyzeButton)
     
-    // Wait for error to be shown
+    // Wait for error handler to be called
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith(errorMessage)
+      expect(handleApiError).toHaveBeenCalledWith({
+        response: { data: errorMessage }
+      })
     })
   })
 
   it('handles file upload when logged in', async () => {
-    // CHANGED: Use auth mock instead of localStorage
     mockUserEmail = 'user@example.com'
     mockIsLoading = false
     
@@ -369,9 +355,7 @@ describe('Home', () => {
     // Create a mock file
     const file = new File(['job description content'], 'test.txt', { type: 'text/plain' })
     
-    // Then in the test:
     const fileInput = screen.getByTestId('file-input')
-
     
     // Simulate file selection
     fireEvent.change(fileInput, { target: { files: [file] } })
@@ -390,7 +374,13 @@ describe('Home', () => {
     await waitFor(() => {
       expect(mockedAxios.post).toHaveBeenCalledWith(
         'http://localhost:5268/api/jobs/upload',
-        expect.any(FormData)
+        expect.any(FormData),
+        {
+          timeout: 120000,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        }
       )
     })
     
@@ -400,7 +390,6 @@ describe('Home', () => {
     })
   })
 
-  //  Add test for auth loading state behavior
   it('does not show main content while auth is loading', () => {
     mockIsLoading = true
     mockUserEmail = null
@@ -413,5 +402,242 @@ describe('Home', () => {
     // Should not show main content
     expect(screen.queryByText(/jd analyzer/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/paste text/i)).not.toBeInTheDocument()
+  })
+
+  it('shows info toast when starting text analysis', async () => {
+    mockUserEmail = 'user@example.com'
+    mockIsLoading = false
+    
+    // Mock successful API response
+    mockedAxios.post.mockResolvedValue({ 
+      data: { 
+        analysis: 'success',
+        improvedJD: 'Improved job description content'
+      } 
+    })
+    
+    // Import toast mock
+    const { toast } = await import('react-toastify')
+    
+    render(<Home />)
+    
+    // Add valid job description text
+    const textArea = screen.getByPlaceholderText(/paste job description/i)
+    fireEvent.change(textArea, {
+      target: { value: validJobDescription }
+    })
+    
+    // Wait for validation to complete and button to be enabled
+    await waitFor(() => {
+      const analyzeButton = screen.getByRole('button', { name: /analyze/i })
+      expect(analyzeButton).not.toBeDisabled()
+    })
+    
+    // Click analyze button
+    const analyzeButton = screen.getByRole('button', { name: /analyze/i })
+    fireEvent.click(analyzeButton)
+    
+    // Wait for info toast to be called
+    await waitFor(() => {
+      expect(toast.info).toHaveBeenCalledWith('Analyzing job description...', { 
+        autoClose: 2000, 
+        hideProgressBar: true 
+      })
+    })
+  })
+
+  it('shows info toast when starting file analysis', async () => {
+    mockUserEmail = 'user@example.com'
+    mockIsLoading = false
+    
+    // Mock successful API response
+    mockedAxios.post.mockResolvedValue({ 
+      data: { 
+        analysis: 'success',
+        improvedJD: 'Improved job description content'
+      } 
+    })
+    
+    // Import toast mock
+    const { toast } = await import('react-toastify')
+    
+    render(<Home />)
+    
+    // Switch to file upload mode
+    fireEvent.click(screen.getByText(/upload file/i))
+    
+    // Create a mock file
+    const file = new File(['job description content'], 'test.txt', { type: 'text/plain' })
+    
+    const fileInput = screen.getByTestId('file-input')
+    
+    // Simulate file selection
+    fireEvent.change(fileInput, { target: { files: [file] } })
+    
+    // Wait for file to be selected and analyze button to be enabled
+    await waitFor(() => {
+      const analyzeButton = screen.getByRole('button', { name: /analyze/i })
+      expect(analyzeButton).not.toBeDisabled()
+    })
+    
+    // Click analyze button
+    const analyzeButton = screen.getByRole('button', { name: /analyze/i })
+    fireEvent.click(analyzeButton)
+    
+    // Wait for info toast to be called
+    await waitFor(() => {
+      expect(toast.info).toHaveBeenCalledWith('Processing and analyzing file...', { 
+        autoClose: 2000, 
+        hideProgressBar: true 
+      })
+    })
+  })
+
+  it('shows success toast when analysis completes', async () => {
+    mockUserEmail = 'user@example.com'
+    mockIsLoading = false
+    
+    // Mock successful API response
+    mockedAxios.post.mockResolvedValue({ 
+      data: { 
+        analysis: 'success',
+        improvedJD: 'Improved job description content'
+      } 
+    })
+    
+    // Import toast mock
+    const { toast } = await import('react-toastify')
+    
+    render(<Home />)
+    
+    // Add valid job description text
+    const textArea = screen.getByPlaceholderText(/paste job description/i)
+    fireEvent.change(textArea, {
+      target: { value: validJobDescription }
+    })
+    
+    // Wait for validation to complete and button to be enabled
+    await waitFor(() => {
+      const analyzeButton = screen.getByRole('button', { name: /analyze/i })
+      expect(analyzeButton).not.toBeDisabled()
+    })
+    
+    // Click analyze button
+    const analyzeButton = screen.getByRole('button', { name: /analyze/i })
+    fireEvent.click(analyzeButton)
+    
+    // Wait for success toast to be called
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('Analysis completed successfully!')
+    })
+  })
+
+  it('shows error when no data received from analysis', async () => {
+    mockUserEmail = 'user@example.com'
+    mockIsLoading = false
+    
+    // Mock API response with no data
+    mockedAxios.post.mockResolvedValue({ data: null })
+    
+    // Import toast mock
+    const { toast } = await import('react-toastify')
+    
+    render(<Home />)
+    
+    // Add valid job description text
+    const textArea = screen.getByPlaceholderText(/paste job description/i)
+    fireEvent.change(textArea, {
+      target: { value: validJobDescription }
+    })
+    
+    // Wait for validation to complete and button to be enabled
+    await waitFor(() => {
+      const analyzeButton = screen.getByRole('button', { name: /analyze/i })
+      expect(analyzeButton).not.toBeDisabled()
+    })
+    
+    // Click analyze button
+    const analyzeButton = screen.getByRole('button', { name: /analyze/i })
+    fireEvent.click(analyzeButton)
+    
+    // Wait for error toast to be called
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('No data received from analysis. Please try again.')
+    })
+  })
+
+  it('validates file type and shows error for invalid files', async () => {
+    mockIsLoading = false
+    render(<Home />)
+    
+    // Switch to file upload mode
+    fireEvent.click(screen.getByText(/upload file/i))
+    
+    // Create a mock file with invalid extension
+    const file = new File(['content'], 'test.exe', { type: 'application/x-executable' })
+    
+    const fileInput = screen.getByTestId('file-input')
+    
+    // Simulate file selection
+    fireEvent.change(fileInput, { target: { files: [file] } })
+    
+    // Wait for validation error to appear
+    await waitFor(() => {
+      expect(screen.getByText(/invalid file type/i)).toBeInTheDocument()
+    })
+    
+    // Button should be disabled
+    const analyzeButton = screen.getByRole('button', { name: /analyze/i })
+    expect(analyzeButton).toBeDisabled()
+  })
+
+  it('validates file size and shows error for large files', async () => {
+    mockIsLoading = false
+    render(<Home />)
+    
+    // Switch to file upload mode
+    fireEvent.click(screen.getByText(/upload file/i))
+    
+    // Create a mock file that's too large (11MB)
+    const largeFile = new File(['x'.repeat(11 * 1024 * 1024)], 'large.txt', { type: 'text/plain' })
+    
+    const fileInput = screen.getByTestId('file-input')
+    
+    // Simulate file selection
+    fireEvent.change(fileInput, { target: { files: [largeFile] } })
+    
+    // Wait for validation error to appear
+    await waitFor(() => {
+      expect(screen.getByText(/file size too large/i)).toBeInTheDocument()
+    })
+    
+    // Button should be disabled
+    const analyzeButton = screen.getByRole('button', { name: /analyze/i })
+    expect(analyzeButton).toBeDisabled()
+  })
+
+  it('clears results when input method changes', () => {
+    mockIsLoading = false
+    render(<Home />)
+    
+    // Switch to file upload mode
+    fireEvent.click(screen.getByText(/upload file/i))
+    
+    // Verify clearResult was called
+    expect(mockDispatchFn).toHaveBeenCalledWith({ type: 'CLEAR_RESULT' })
+    
+    // Switch back to text mode
+    fireEvent.click(screen.getByText(/paste text/i))
+    
+    // Verify clearResult was called again
+    expect(mockDispatchFn).toHaveBeenCalledWith({ type: 'CLEAR_RESULT' })
+  })
+
+  it('clears results on component mount', () => {
+    mockIsLoading = false
+    render(<Home />)
+    
+    // Verify clearResult was called on mount
+    expect(mockDispatchFn).toHaveBeenCalledWith({ type: 'CLEAR_RESULT' })
   })
 })

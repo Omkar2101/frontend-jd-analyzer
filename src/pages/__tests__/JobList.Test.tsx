@@ -19,7 +19,7 @@ vi.mock("../../hooks/useAuth", () => ({
   })),
 }));
 
-// === Mock Job Data ===
+// === Mock Job Data 
 const mockJobs = [
   {
     id: "1",

@@ -143,7 +143,7 @@
 .comparison-content {
   flex-grow: 1;
   overflow-y: auto;
-  max-height: 600px;
+  max-height: 900px;
   background-color: #fafafa;
 }
 
@@ -162,8 +162,11 @@
   background-color: rgba(40, 167, 69, 0.02);
   border-radius: 6px;
   padding: 15px;
-  border-left: 4px solid #28a745;
+  margin-top: -120px;
+  
 }
+
+
 
 .comparison-content::-webkit-scrollbar {
   width: 6px;

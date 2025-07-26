@@ -1,10 +1,8 @@
 
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import { toast } from 'react-toastify';
-import html2pdf from 'html2pdf.js';
 import type { RootState } from "../store/store";
 import ImprovedJobDescription from "../components/ImprovedJobDescription";
 import JobFileViewer from '../components/JobFileViewer';
@@ -14,7 +12,6 @@ import "../styles/analysis.css";
 const Analysis: React.FC = () => {
   const navigate = useNavigate();
   const result = useSelector((state: RootState) => state.result.data);
-  const [isDownloading, setIsDownloading] = useState(false);
   
   console.log("Analysis result:", result);
 
@@ -34,44 +31,6 @@ const Analysis: React.FC = () => {
       </div>
     );
   }
-
-  const handleDownload = async () => {
-    const content = document.getElementById('analysis-content');
-    if (content) {
-      try {
-        setIsDownloading(true);
-        // Clone the element to avoid modifying the original
-        const clonedContent = content.cloneNode(true) as HTMLElement;
-
-        // Remove all buttons and navigation elements
-        const buttonsToRemove = clonedContent.querySelectorAll('.btn, button, .no-print');
-        buttonsToRemove.forEach(btn => btn.remove());
-
-        // Create a temporary container
-        const tempContainer = document.createElement('div');
-        tempContainer.appendChild(clonedContent);
-        document.body.appendChild(tempContainer);
-        
-        const opt = {
-          margin: 1,
-          filename: `jd-analysis-${Date.now()}.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-
-        await html2pdf().set(opt).from(tempContainer).save();
-        // Clean up
-        document.body.removeChild(tempContainer);
-        toast.success('PDF downloaded successfully');
-      } catch (error) {
-        console.error('Error generating PDF:', error);
-        toast.error('Failed to generate PDF');
-      } finally {
-        setIsDownloading(false);
-      }
-    }
-  };
 
   // Check if all three scores are 0
   const allScoresZero = result.bias_score === 0 && 
@@ -124,6 +83,18 @@ const Analysis: React.FC = () => {
       <div className='mb-3'>
         <h3>{result.fileName || result.originalFileName || 'Job Description Analysis'}</h3>
       </div>
+
+     {(result.fileName == "Direct Input") && (
+        <div className="card mb-4">
+          <div className="card-header  bg-secondary text-white">
+            <h5 className="mb-0">Text Input</h5>
+          </div>
+          <div className="card-body">
+            <p className="lead mb-0">{result.originalText}</p>
+          </div>
+        </div>
+          
+      )}
 
       {/* FILE VIEWER SECTION */}
       {(result.fileUrl || result.storedFileName) && (
@@ -397,26 +368,63 @@ const Analysis: React.FC = () => {
             </div>
           )}
 
-          {/* Download Button */}
-          <div className="text-center mt-4 mb-5 no-print">
-            <button 
-              onClick={handleDownload} 
-              className="btn btn-success btn-lg"
-              disabled={isDownloading}
-            >
-              {isDownloading ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Generating PDF...
-                </>
-              ) : (
-                <>
-                  <i className="bi bi-download me-2"></i>
-                  Download Analysis Report (PDF)
-                </>
-              )}
-            </button>
-          </div>
+          {/* Side-by-Side Comparison Section - NEW ADDITION */}
+          {result.improvedText && result.improvedText.trim() && (
+            <div className="card mb-4">
+              <div className="card-header bg-primary text-white">
+                <h5 className="mb-0">📋 Compare: Original vs Improved</h5>
+                <small className="opacity-75">
+                  Side-by-side comparison to see the improvements made to your job description
+                </small>
+              </div>
+              <div className="card-body p-0">
+                <div className="row g-0">
+                  <div className="col-md-6 border-end">
+                    <div className="comparison-section">
+                      <div className="comparison-header text-white">
+                        <h6 className="mb-0 p-3">
+                          <i className="bi bi-file-text me-2"></i>
+                          Original Job Description
+                        </h6>
+                      </div>
+                      <div className="comparison-content p-3">
+                        {result.fileName === "Direct Input" ? (
+                          <div className="original-document">
+                            {result.originalText.split('\n').map((paragraph: string, index: number) => (
+                              <p key={index} className="mb-3" style={{ lineHeight: '1.6' }}>
+                                {paragraph}
+                              </p>
+                            ))}
+                          </div>
+                        ) : (
+                          <JobFileViewer job={{
+                            ...result,
+                            fileUrl: result.fileUrl || API_ENDPOINTS.files.viewFile(result.storedFileName),
+                            originalFileName: result.originalFileName || result.fileName,
+                            contentType: result.contentType,
+                            fileSize: result.fileSize
+                          }} />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="comparison-section">
+                      <div className="comparison-header text-white">
+                        <h6 className="mb-0 p-3">
+                          <i className="bi bi-file-check me-2"></i>
+                          Improved Job Description
+                        </h6>
+                      </div>
+                      <div className="comparison-content p-0">
+                        <ImprovedJobDescription improvedText={result.improvedText} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

@@ -2,8 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Login from '../Login';
-import { MemoryRouter } from 'react-router-dom';
-import userEvent from '@testing-library/user-event';
+
 
 // Simple mocks
 vi.mock('react-router-dom', async () => {

@@ -12,6 +12,7 @@ on:
       - ui 
       - feature/localstorage-update
       - formatjd
+      - remvdown
   
   # Run on pull requests targeting specific branches
   pull_request:

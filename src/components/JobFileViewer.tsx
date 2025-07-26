@@ -289,8 +289,12 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
                 standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
               }}
             >
+              {/* Render all pages */}
+          {numPages && Array.from(new Array(numPages), (el, index) => (
+            <div key={`page_${index + 1}`} className="pdf-page-wrapper">
+              
               <Page
-                pageNumber={pageNumber}
+                pageNumber={index + 1}
                 onLoadSuccess={onPageLoadSuccess}
                 onLoadError={onPageLoadError}
                 onRenderError={onPageLoadError}
@@ -298,6 +302,9 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
                 renderAnnotationLayer={true}
                 className="pdf-page"
               />
+            </div>
+          ))}
+        
             </Document>
           </div>
 
@@ -357,7 +364,7 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
             className="btn btn-primary btn-sm"
             download={job.originalFileName}
           >
-            📥 Download File
+             Download File
           </a>
           <a 
             href={API_ENDPOINTS.files.viewFile(storedFileName)}
@@ -365,7 +372,7 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            👁️ Try View
+             Try View
           </a>
         </div>
       </div>
@@ -374,16 +381,7 @@ const JobFileViewer: React.FC<JobFileViewerProps> = ({ job }) => {
 
   return (
     <div className="job-file-viewer">
-      <div className="file-viewer-header">
-        <h6 className="file-viewer-title">
-          📎 Original Uploaded File
-        </h6>
-        {job.fileUrl && (
-          <small className="file-type-info">
-            {job.contentType}
-          </small>
-        )}
-      </div>
+     
       {renderFilePreview()}
     </div>
   );
