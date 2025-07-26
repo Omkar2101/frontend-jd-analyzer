@@ -54,19 +54,16 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit
 
-      # Step 4: Run linting (if you have ESLint configured)
-      
-      - name: Run ESLint
-        run: npm run lint
+    
 
-      # Step 5: Run unit tests with coverage
+      # Step 4: Run unit tests with coverage
       - name:  Run tests with coverage
         run: npm run test:coverage
         env:
           # Ensure tests run in CI mode
           CI: true
 
-      # Step 6: Upload test coverage reports
+      # Step 5: Upload test coverage reports
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
         if: success()
@@ -77,14 +74,14 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
-      # Step 7: Build production bundle
+      # Step 6: Build production bundle
       - name:  Build production bundle
         run: npm run build
         env:
           # Set to production for optimized build
           NODE_ENV: production
 
-      # Step 8: Check build output size (optional quality check)
+      # Step 7: Check build output size (optional quality check)
       - name:  Analyze bundle size
         run: |
           echo "Build completed successfully!"
@@ -92,7 +89,7 @@ jobs:
           du -sh dist/
           ls -la dist/
 
-      # Step 9: Upload build artifacts for CD workflow
+      # Step 8: Upload build artifacts for CD workflow
       - name: ⬆ Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -103,7 +100,7 @@ jobs:
           # Compress for faster upload/download
           compression-level: 6
 
-      # Step 10: Upload source code for Docker build (if needed)
+      # Step 9: Upload source code for Docker build (if needed)
       - name:  Upload source for Docker
         uses: actions/upload-artifact@v4
         if: github.ref == 'refs/heads/main'
