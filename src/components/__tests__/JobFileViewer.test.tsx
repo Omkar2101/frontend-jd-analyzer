@@ -6,17 +6,56 @@ import '@testing-library/jest-dom/vitest';
 
 // Mock DOM APIs that PDF.js needs
 beforeAll(() => {
-  // Mock DOMMatrix
-  global.DOMMatrix = vi.fn().mockImplementation(() => ({
+  // Mock DOMMatrix with proper constructor signatures
+  const MockDOMMatrix = vi.fn().mockImplementation((init?: string | number[]) => ({
     a: 1, b: 0, c: 0, d: 1, e: 0, f: 0,
-    multiply: vi.fn(),
-    translate: vi.fn(),
-    scale: vi.fn()
+    multiply: vi.fn().mockReturnThis(),
+    translate: vi.fn().mockReturnThis(),
+    scale: vi.fn().mockReturnThis()
   }));
+  
+  // Add static methods using Object.assign to avoid TypeScript errors
+  Object.assign(MockDOMMatrix, {
+    fromFloat32Array: vi.fn().mockImplementation(() => MockDOMMatrix()),
+    fromFloat64Array: vi.fn().mockImplementation(() => MockDOMMatrix()),
+    fromMatrix: vi.fn().mockImplementation(() => MockDOMMatrix())
+  });
+  
+  global.DOMMatrix = MockDOMMatrix as any;
 
-  // Mock other canvas/DOM APIs
-  global.Path2D = vi.fn();
-  global.ImageData = vi.fn();
+  // Mock Path2D
+  global.Path2D = vi.fn().mockImplementation(() => ({
+    addPath: vi.fn(),
+    closePath: vi.fn(),
+    moveTo: vi.fn(),
+    lineTo: vi.fn()
+  })) as any;
+  
+  // Mock ImageData with proper constructor signatures
+  const MockImageData = vi.fn().mockImplementation((dataOrWidth: any, widthOrHeight?: number, heightOrSettings?: any, settings?: any) => {
+    // Handle both constructor signatures
+    if (dataOrWidth instanceof Uint8ClampedArray) {
+      // new ImageData(data, width, height?, settings?)
+      return {
+        data: dataOrWidth,
+        width: widthOrHeight || 1,
+        height: heightOrSettings || 1,
+        colorSpace: settings?.colorSpace || 'srgb'
+      };
+    } else {
+      // new ImageData(width, height, settings?)
+      const width = dataOrWidth;
+      const height = widthOrHeight || 1;
+      return {
+        data: new Uint8ClampedArray(width * height * 4),
+        width: width,
+        height: height,
+        colorSpace: heightOrSettings?.colorSpace || 'srgb'
+      };
+    }
+  });
+  
+  global.ImageData = MockImageData as any;
   
   // Mock fetch for file loading
   global.fetch = vi.fn();
@@ -111,7 +150,6 @@ describe('JobFileViewer', () => {
       
       render(<JobFileViewer job={job} />);
       
-    
       expect(screen.getByText('No file attached')).toBeInTheDocument();
     });
 
@@ -137,7 +175,11 @@ describe('JobFileViewer', () => {
       
       const image = screen.getByAltText('test-image.jpg');
       expect(image).toBeInTheDocument();
-      expect(image).toHaveAttribute('src', 'http://localhost:5268/api/files/image.jpg/view');
+      
+      // The actual URL construction might be different in your component
+      // Check what URL is actually being generated and adjust accordingly
+      const expectedUrl = 'http://localhost:5268/api/files/image.jpg/view';
+      expect(image).toHaveAttribute('src', expectedUrl);
       expect(screen.getByText(/test-image.jpg • 1.00 KB/)).toBeInTheDocument();
     });
 
@@ -195,8 +237,6 @@ describe('JobFileViewer', () => {
   });
 
   describe('Text files', () => {
-   
-
     test('detects txt files by extension', () => {
       const job = {
         ...mockJobBase,
@@ -253,31 +293,7 @@ describe('JobFileViewer', () => {
     });
   });
 
-  // describe('Generic files', () => {
-  //   test('renders generic file viewer for unknown types', () => {
-  //     const job = {
-  //       ...mockJobBase,
-  //       fileUrl: '/uploads/data.csv',
-  //       originalFileName: 'data.csv',
-  //       contentType: 'text/csv'
-  //     };
-      
-  //     render(<JobFileViewer job={job} />);
-      
-  //     expect(screen.getByText('data.csv')).toBeInTheDocument();
-  //     expect(screen.getByText('Size: 1.00 KB')).toBeInTheDocument();
-  //     expect(screen.getByText('📥 Download File')).toBeInTheDocument();
-  //     expect(screen.getByText('👁️ Try View')).toBeInTheDocument();
-  //   });
-
-    
-  // });
-
- 
-
   describe('Header content', () => {
-    
-
     test('does not show content type when no file', () => {
       const job = {
         ...mockJobBase,
@@ -289,8 +305,6 @@ describe('JobFileViewer', () => {
       
       expect(screen.queryByText('application/pdf')).not.toBeInTheDocument();
     });
-
-   
   });
 
   describe('File URL parsing', () => {
