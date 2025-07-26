@@ -194,7 +194,7 @@ function Home() {
       if (inputMethod === 'text' && text.trim()) {
         // Show a brief loading message for text analysis
         toast.info('Analyzing job description...', { 
-          autoClose: 2000, 
+          autoClose: 1000, 
           hideProgressBar: true 
         });
         
@@ -207,7 +207,7 @@ function Home() {
       } else if (inputMethod === 'file' && file) {
         // Show a brief loading message for file analysis
         toast.info('Processing and analyzing file...', { 
-          autoClose: 2000, 
+          autoClose: 1000, 
           hideProgressBar: true 
         });
         
