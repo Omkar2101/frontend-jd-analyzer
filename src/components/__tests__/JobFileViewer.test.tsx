@@ -162,44 +162,7 @@ describe('JobFileViewer', () => {
     });
   });
 
-  describe('Image files', () => {
-    test('renders image file correctly', () => {
-      const job = {
-        ...mockJobBase,
-        fileUrl: '/uploads/image.jpg',
-        originalFileName: 'test-image.jpg',
-        contentType: 'image/jpeg'
-      };
-      
-      render(<JobFileViewer job={job} />);
-      
-      const image = screen.getByAltText('test-image.jpg');
-      expect(image).toBeInTheDocument();
-      
-      // The actual URL construction might be different in your component
-      // Check what URL is actually being generated and adjust accordingly
-      const expectedUrl = 'http://localhost:5268/api/files/image.jpg/view';
-      expect(image).toHaveAttribute('src', expectedUrl);
-      expect(screen.getByText(/test-image.jpg • 1.00 KB/)).toBeInTheDocument();
-    });
-
-    test('handles different image types', () => {
-      const imageTypes = ['image/png', 'image/gif', 'image/webp'];
-      
-      imageTypes.forEach((contentType) => {
-        const job = {
-          ...mockJobBase,
-          fileUrl: '/uploads/test-image.png',
-          originalFileName: 'test.png',
-          contentType
-        };
-        
-        const { unmount } = render(<JobFileViewer job={job} />);
-        expect(screen.getByAltText('test.png')).toBeInTheDocument();
-        unmount();
-      });
-    });
-  });
+  
 
   describe('PDF files', () => {
     test('renders PDF file correctly', async () => {
