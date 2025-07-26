@@ -8,7 +8,7 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import DocViewer, { DocViewerRenderers } from 'react-doc-viewer';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import '../styles/jobFileViewer.css';
+import '../styles/JobFileViewer.css'
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
