@@ -235,7 +235,7 @@ function Home() {
         toast.error('No data received from analysis. Please try again.');
       }
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       // This is where your error handler is used - and it's perfect!
       console.error('Analysis error:', error);
       handleApiError(error);

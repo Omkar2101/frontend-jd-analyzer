@@ -9,7 +9,27 @@ import JobFileViewer from '../components/JobFileViewer';
 import { API_ENDPOINTS } from '../utils/api';
 import "../styles/analysis.css";
 
+  interface Issue {
+  type: string;
+  text: string;
+  explanation: string;
+  severity: 'high' | 'medium' | 'low';
+}
+
+interface Suggestion {
+  category?: string;
+  original: string;
+  improved: string;
+  rationale: string;
+}
+
+
+
 const Analysis: React.FC = () => {
+
+
+
+  
   const navigate = useNavigate();
   const result = useSelector((state: RootState) => state.result.data);
   
@@ -272,7 +292,7 @@ const Analysis: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                result.issues.map((issue: any, index: number) => (
+                result.issues.map((issue: Issue, index: number) => (
                   <div key={index} className="issue-item mb-3">
                     <div className="d-flex justify-content-between align-items-start">
                       <div>
@@ -316,7 +336,7 @@ const Analysis: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                result.suggestions.map((suggestion: any, index: number) => (
+                result.suggestions.map((suggestion: Suggestion, index: number) => (
                   <div key={index} className="suggestion-item mb-3">
                     {suggestion.category && (
                       <>
@@ -359,7 +379,7 @@ const Analysis: React.FC = () => {
                 <h5 className="mb-0">SEO Keywords to Add</h5>
               </div>
               <div className="card-body">
-                {result.seo_keywords.map((keyword: any, index: number) => (
+                {result.seo_keywords.map((keyword: string, index: number) => (
                   <div key={index} className="mb-3 p-3 border-bottom">
                     <p className="mb-3 bg-light p-2 rounded">{keyword}</p>
                   </div>
