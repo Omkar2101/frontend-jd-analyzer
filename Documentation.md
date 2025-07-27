@@ -21,7 +21,6 @@ Welcome to the **JD Analyzer** frontend! This document provides an in-depth over
    - [Job List](#job-list)
    - [Analysis](#analysis)
    - [AnalysisDetail](#analysisdetail)
-   - [Download](#download)
    - [DummyAnalysis](#dummyanalysis)
 7. [State Management](#state-management)
 8. [API & Storage Utilities](#api--storage-utilities)
@@ -46,7 +45,6 @@ flowchart LR
   App --> Joblist[Job List]
   App --> Analysis[Analysis]
   App --> AnalysisDetail[Analysis Detail]
-  App --> Download[Download]
   App --> DummyAnalysis[Dummy Analysis]
 ```
 
@@ -86,7 +84,6 @@ flowchart LR
   - `/jds` → `<Joblist/>`
   - `/analysis` → `<Analysis/>`
   - `/analysis/:id` → `<AnalysisDetail/>`
-  - `/download` → `<Download/>`
   - `/dummy` → `<DummyAnalysis/>`
 
 ---
@@ -124,8 +121,8 @@ Validates:
 
 - **Props**: `onClose: () => void`.
 - **Actions**:
-  - Clicking outside or “Cancel” closes modal.
-  - “Go to Login” navigates to `/login`.
+  - Clicking outside or "Cancel" closes modal.
+  - "Go to Login" navigates to `/login`.
 - **Styling**: Custom CSS in `LoginPrompt.css`.
 
 #### LoginPrompt Test
@@ -151,7 +148,7 @@ Exposes:
 ### useNavigation
 
 **Path**: `src/hooks/useNavigation.ts`  
-Wraps React Router’s `useNavigate` in a try/catch and returns:
+Wraps React Router's `useNavigate` in a try/catch and returns:
 - `navigateToRoute(route: string)`.
 
 ---
@@ -209,10 +206,11 @@ Checks:
 Displays all JDs for `userEmail`:
 
 - Fetches `GET /api/jobs/user/:email`.
-- Text processing: handles JSON‐embedded text.
-- Truncation helper.
-- States: loading, error, empty.
-- Delete via `DELETE /api/jobs/{id}`.
+- Delete functionality via `DELETE /api/jobs/{id}` with confirmation.
+- Color-coded score badges.
+- Card-based layout with truncated previews.
+- Loading, error, and empty states.
+- Click to view full analysis.
 
 #### JobList Test
 
@@ -227,14 +225,27 @@ Covers loading, success, empty, error, auth guard.
 Shows summary of analysis stored in Redux:
 
 - Redirects to `/` if no data.
-- Renders Bias/Inclusion/Clarity cards with color logic.
-- Lists Issues, Suggestions, SEO keywords.
-- “Download” button navigates to `/download`.
+- Shows overall assessment at the top.
+- Renders Bias/Inclusion/Clarity score cards with color logic:
+  - Bias: Red (High) → Yellow (Medium) → Green (Low)
+  - Inclusivity/Clarity: Green (High) → Yellow (Medium) → Red (Low)
+- Issues section:
+  - Shows "No issues found" message with checkmark when no issues
+  - Lists issues with severity badges when present
+- Lists Suggestions and SEO keywords in separate cards
+- Delete functionality with confirmation
+- "Download" button navigates to `/download`
 
 #### Analysis Test
 
 **Path**: `src/pages/__tests__/Analysis.test.tsx`  
-Ensures redirect without data and correct rendering with mock store.
+Validates:
+- Redirect without data
+- Overall assessment display
+- Score card colors and calculations
+- Empty state for issues
+- Delete confirmation and API call
+- Download navigation
 
 ---
 
@@ -244,8 +255,14 @@ Ensures redirect without data and correct rendering with mock store.
 Fetches and displays detailed analysis for a single JD:
 
 - `GET /api/jobs/{id}` via axios.
-- Loading & error handling with toasts.
-- PDF export: clones content, removes UI, uses html2pdf.
+- Shows overall assessment at the top
+- Analysis Matrix with score bars and interpretations
+- Issues section:
+  - Shows "No issues found" message with checkmark for clean JDs
+  - Lists issues with type, text, explanation, and severity badges
+- Loading & error handling with toasts
+- File preview for uploaded documents
+- PDF export: clones content, removes UI, uses html2pdf
 
 #### AnalysisDetail Test
 
@@ -254,20 +271,7 @@ Mocks axios, verifies rendering of headings, sections, and absence when arrays e
 
 ---
 
-### Download
 
-**Path**: `src/pages/Download.tsx`  
-Auto-triggers PDF download upon mount:
-
-- Uses `html2pdf.js` with options.
-- Navigates back to `/analysis` after download.
-
-#### Download Test
-
-**Path**: `src/pages/__tests__/Download.test.tsx`  
-Mocks html2pdf, DOM, Redux store, validates PDF invocation and CSS classes.
-
----
 
 ### DummyAnalysis
 

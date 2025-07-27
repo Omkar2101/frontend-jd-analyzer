@@ -487,7 +487,7 @@ describe('Home', () => {
     // Wait for info toast to be called
     await waitFor(() => {
       expect(toast.info).toHaveBeenCalledWith('Processing and analyzing file...', { 
-        autoClose: 2000, 
+        autoClose: 1000, 
         hideProgressBar: true 
       })
     })

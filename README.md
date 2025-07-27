@@ -159,6 +159,11 @@ The application connects to the following endpoints:
 - `GET /api/jobs/user/{email}` - Get user's job history
 - `DELETE /api/jobs/{id}` - Delete job analysis
 
+### **Files API Endpoints**
+- `GET /files/{storedFileName}` - Get file metadata or information
+- `GET /files/{storedFileName}/view` - View file content in browser
+- `GET /files/{storedFileName}/download` - Download file
+
 ## 🎨 User Interface
 
 ### **Home Page**
