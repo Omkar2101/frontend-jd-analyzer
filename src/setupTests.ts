@@ -69,7 +69,7 @@ if (!global.URL) {
   global.URL = {
     createObjectURL: () => 'mock-url',
     revokeObjectURL: () => {},
-  } as any;
+  } as unknown as typeof URL;
 }
 
 // Clean up after the tests are finished

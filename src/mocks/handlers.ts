@@ -97,14 +97,24 @@
 // src/mocks/handlers.ts
 import { http, HttpResponse } from 'msw'
 
+// Define the request body interface
+interface AnalyzeJobRequest {
+  userEmail?: string;
+  originalText?: string;
+  fileName?: string;
+  fileContent?: string;
+  contentType?: string;
+}
+
 export const handlers = [
+  
   // Mock analyze job API
   http.post('http://localhost:5268/api/jobs/analyze', async ({ request }) => {
-    const body = await request.json()
+    const body = await request.json() as AnalyzeJobRequest;
     
     return HttpResponse.json({
       id: 'job_123',
-      userEmail: 'user@example.com',
+      userEmail: body.userEmail || 'user@example.com',
       originalText: 'We are looking for guys to join our development team. The ideal rockstar should have strong problem-solving skills and be a ninja in coding.',
       improvedText: 'We are seeking team members to join our development team. The ideal candidate should have strong problem-solving skills and expertise in coding.',
       fileName: 'job-description.txt',
@@ -172,9 +182,11 @@ export const handlers = [
   }),
 
   // Mock file upload API
-  http.post('http://localhost:5268/api/jobs/upload', async ({ request }) => {
+  http.post('http://localhost:5268/api/jobs/upload', async ({ params }) => {
+    const { id } = params as { id: string };
+
     return HttpResponse.json({
-      id: 'job_456',
+      id:id || 'job_456',
       userEmail: 'user@example.com',
       originalText: 'Senior Backend Developer position available. Must be proficient in Node.js and database management.',
       improvedText: 'Senior Backend Developer position available. Must be proficient in Node.js and database management. We welcome applications from all qualified candidates.',

@@ -9,7 +9,29 @@ export interface ApiErrorResponse {
   timestamp?: string;
 }
 
-export const handleApiError = (error: any) => {
+// Define possible error structures
+interface NetworkError {
+  code: 'NETWORK_ERROR' | 'ECONNABORTED';
+  message: string;
+}
+
+interface HttpError {
+  response: {
+    status: number;
+    data: ApiErrorResponse | string | { message: string } | unknown;
+  };
+  message?: string;
+}
+
+interface GenericError {
+  message: string;
+  code?: string;
+}
+
+// Union type for all possible error types
+type ApiError = NetworkError | HttpError | GenericError | Error;
+
+export const handleApiError = (error: ApiError) => {
   console.error('API Error:', error);
   
   let errorMessage = 'An unexpected error occurred. Please try again.';

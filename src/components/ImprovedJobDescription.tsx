@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import html2pdf from 'html2pdf.js'; // 
 import '../styles/ImprovedJobDescription.css';
 
@@ -167,52 +167,110 @@ const ImprovedJobDescription: React.FC<ImprovedJobDescriptionProps> = ({ improve
     return tempDiv;
   };
 
-  // Function to generate PDF with proper typing
-  const generatePDF = async () => {
-    setIsGenerating(true);
-    setError(null);
+  // // Function to generate PDF with proper typing
+  // const generatePDF = async () => {
+  //   setIsGenerating(true);
+  //   setError(null);
     
-    try {
-      const tempContent = renderSimpleHtmlContent();
-      document.body.appendChild(tempContent);
+  //   try {
+  //     const tempContent = renderSimpleHtmlContent();
+  //     document.body.appendChild(tempContent);
       
-      const options = {
-        margin: 0.5,
-        filename: getFileName(),
-        image: { 
-          type: 'jpeg',
-          quality: 0.95 
-        },
-        html2canvas: { 
-          scale: 1
-        },
-        jsPDF: { 
-          unit: 'in',
-          format: 'a4',
-          orientation: 'portrait'
-        }
-      };
+  //     const options = {
+  //       margin: 0.5,
+  //       filename: getFileName(),
+  //       image: { 
+  //         type: 'jpeg',
+  //         quality: 0.95 
+  //       },
+  //       html2canvas: { 
+  //         scale: 1
+  //       },
+  //       jsPDF: { 
+  //         unit: 'in',
+  //         format: 'a4',
+  //         orientation: 'portrait'
+  //       }
+  //     };
 
-      // Now this should work with your updated type declaration
-      const pdfBlob = await html2pdf()
-        .set(options)
-        .from(tempContent)
-        .toPdf()
-        .output('blob');
+  //     // Now this should work with your updated type declaration
+  //     const pdfBlob = await html2pdf()
+  //       .set(options)
+  //       .from(tempContent)
+  //       .toPdf()
+  //       .output('blob');
       
-      document.body.removeChild(tempContent);
+  //     document.body.removeChild(tempContent);
       
-      const url = URL.createObjectURL(pdfBlob);
-      setPdfUrl(url);
-      setPdfBlob(pdfBlob);
+  //     const url = URL.createObjectURL(pdfBlob);
+  //     setPdfUrl(url);
+  //     setPdfBlob(pdfBlob);
       
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      setError('Failed to generate PDF preview. Please try again.');
-    } finally {
-      setIsGenerating(false);
+  //   } catch (error) {
+  //     console.error('Error generating PDF:', error);
+  //     setError('Failed to generate PDF preview. Please try again.');
+  //   } finally {
+  //     setIsGenerating(false);
+  //   }
+  // };
+
+  // Wrap generatePDF in useCallback to prevent infinite re-renders
+const generatePDF = useCallback(async () => {
+  setIsGenerating(true);
+  setError(null);
+  
+  try {
+    const tempContent = renderSimpleHtmlContent();
+    document.body.appendChild(tempContent);
+    
+    const options = {
+      margin: 0.5,
+      filename: getFileName(),
+      image: { 
+        type: 'jpeg',
+        quality: 0.95 
+      },
+      html2canvas: { 
+        scale: 1
+      },
+      jsPDF: { 
+        unit: 'in',
+        format: 'a4',
+        orientation: 'portrait'
+      }
+    };
+
+    const pdfBlob = await html2pdf()
+      .set(options)
+      .from(tempContent)
+      .toPdf()
+      .output('blob');
+    
+    document.body.removeChild(tempContent);
+    
+    const url = URL.createObjectURL(pdfBlob);
+    setPdfUrl(url);
+    setPdfBlob(pdfBlob);
+    
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    setError('Failed to generate PDF preview. Please try again.');
+  } finally {
+    setIsGenerating(false);
+  }
+}, [improvedText]); // Add improvedText as dependency since it's used in the function
+
+// Update the useEffect
+useEffect(() => {
+  generatePDF();
+  return () => {
+    if (pdfUrl) {
+      URL.revokeObjectURL(pdfUrl);
     }
   };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [improvedText, generatePDF]); // Add generatePDF, disable warning for pdfUrl in cleanup
+
 
   // Function to download PDF
   const downloadPDF = () => {

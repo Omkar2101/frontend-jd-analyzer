@@ -41,8 +41,8 @@ const Login: React.FC = () => {
       setTimeout(() => {
         navigate("/");
       }, 2000);
-    } catch (err) {
-      setError("Login failed. Please try again.");
+    } catch  {
+      setError( "Login failed. Please try again.");
       setIsLoading(false);
     }
   };
