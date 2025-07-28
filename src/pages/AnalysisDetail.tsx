@@ -845,7 +845,7 @@ const AnalysisDetail: React.FC = () => {
                       </div>
                       <span className={`badge bg-${issue.severity === 'high' ? 'danger' : 
                         issue.severity === 'medium' ? 'warning' : 'info'}`}>
-                        {issue.severity}
+                        Severity - {issue.severity}
                       </span>
                     </div>
                   </div>
@@ -887,6 +887,22 @@ const AnalysisDetail: React.FC = () => {
             </div>
           </div>
 
+           {/* SEO Keywords */}
+          {result.analysis.seo_keywords && result.analysis.seo_keywords.length > 0 && (
+            <div className="card mb-4">
+              <div className="card-header  bg-secondary text-dark">
+                <h5 className="mb-0">SEO keywords not present in the original job description</h5>
+              </div>
+              <div className="card-body">
+                {result.analysis.seo_keywords.map((keyword, index) => (
+                  <div key={index} className="mb-3 p-3 border-bottom">
+                    <p className="mb-3 bg-light p-2 rounded">{keyword}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         
 
             {/* Improved Job Description Section */}
@@ -904,21 +920,7 @@ const AnalysisDetail: React.FC = () => {
             </div>
           )}
 
-          {/* SEO Keywords */}
-          {result.analysis.seo_keywords && result.analysis.seo_keywords.length > 0 && (
-            <div className="card mb-4">
-              <div className="card-header  bg-secondary text-dark">
-                <h5 className="mb-0">SEO Keywords to Add</h5>
-              </div>
-              <div className="card-body">
-                {result.analysis.seo_keywords.map((keyword, index) => (
-                  <div key={index} className="mb-3 p-3 border-bottom">
-                    <p className="mb-3 bg-light p-2 rounded">{keyword}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+         
 
           {/* Side-by-Side Comparison Section */}
           {result.improvedText && (
