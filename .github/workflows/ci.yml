@@ -9,8 +9,7 @@ on:
   push:
     branches: 
       - main
-      - ui 
-      - feature/localstorage-update
+      - formatImpjd
       - formatjd
       - remvdown
   
@@ -18,8 +17,7 @@ on:
   pull_request:
     branches: 
       - main
-      - ui 
-      - feature/localstorage-update
+      
 
 # Define reusable environment variables
 env:

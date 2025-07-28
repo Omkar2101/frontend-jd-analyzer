@@ -80,7 +80,7 @@ const Analysis: React.FC = () => {
 
   // Get positive score interpretation
   const getPositiveScoreText = (score: number) => {
-    if (score >= 0.8) return 'Excellent';
+    if (score >= 0.9) return 'Excellent';
     if (score >= 0.6) return 'Good';
     return 'Needs Improvement';
   };
@@ -281,7 +281,7 @@ const Analysis: React.FC = () => {
           {/* Issues Section */}
           <div className="card mb-4">
             <div className="card-header bg-warning text-dark">
-              <h5 className="mb-0">Detected Biased Issues</h5>
+              <h5 className="mb-0">Detected Issues</h5>
             </div>
             <div className="card-body">
               {!result.issues || result.issues.length === 0 ? (
