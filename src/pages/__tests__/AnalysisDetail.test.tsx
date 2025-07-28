@@ -1043,7 +1043,7 @@ describe('AnalysisDetail Page', () => {
     expect(await screen.findByText(/comprehensive assessment/i)).toBeInTheDocument();
     
     // Issues Section
-    expect(await screen.findByText(/Detected Biased Issues/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Detected Issues/i)).toBeInTheDocument();
     expect(await screen.findByText(/Gender Bias/i)).toBeInTheDocument();
     
     // Suggestions Section
@@ -1107,7 +1107,7 @@ describe('AnalysisDetail Page', () => {
     expect(screen.queryByText(/Job Industry/i)).not.toBeInTheDocument();
     
     // Should NOT show issues, suggestions, or other analysis sections
-    expect(screen.queryByText(/Detected Biased Issues/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Detected Issues/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Improvement Suggestions/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/📝 Improved Job Description/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/SEO Keywords/i)).not.toBeInTheDocument();
@@ -1135,7 +1135,7 @@ describe('AnalysisDetail Page', () => {
       </MemoryRouter>
     );
 
-    expect(await screen.findByText(/Detected Biased Issues/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Detected Issues/i)).toBeInTheDocument();
     expect(await screen.findByText(/No issues found! Your job description looks good./i)).toBeInTheDocument();
   });
 

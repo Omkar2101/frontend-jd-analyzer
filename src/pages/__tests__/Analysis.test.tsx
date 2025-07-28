@@ -485,7 +485,7 @@ describe('Analysis', () => {
     
     render(<Analysis />)
     
-    expect(screen.getByText('Detected Biased Issues')).toBeInTheDocument()
+    expect(screen.getByText('Detected Issues')).toBeInTheDocument()
     expect(screen.getByText('No issues found! Your job description looks good.')).toBeInTheDocument()
   })
 
@@ -506,7 +506,7 @@ describe('Analysis', () => {
     
     render(<Analysis />)
     
-    expect(screen.getByText('Detected Biased Issues')).toBeInTheDocument()
+    expect(screen.getByText('Detected Issues')).toBeInTheDocument()
     expect(screen.getByText('Type: Gender Bias')).toBeInTheDocument()
     expect(screen.getByText('"guys"')).toBeInTheDocument()
     expect(screen.getByText('Use gender-neutral language')).toBeInTheDocument()
