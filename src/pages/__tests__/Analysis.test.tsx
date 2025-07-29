@@ -560,7 +560,7 @@ describe('Analysis', () => {
     
     render(<Analysis />)
     
-    expect(screen.getByText('SEO Keywords to Add')).toBeInTheDocument()
+    expect(screen.getByText('SEO keywords not present in the original job description')).toBeInTheDocument()
     expect(screen.getByText('JavaScript')).toBeInTheDocument()
     expect(screen.getByText('React')).toBeInTheDocument()
     expect(screen.getByText('Node.js')).toBeInTheDocument()
