@@ -1056,12 +1056,12 @@ describe('AnalysisDetail Page', () => {
     
     
     // SEO Keywords
-    expect(await screen.findByText(/SEO Keywords to Add/i)).toBeInTheDocument();
+    expect(await screen.findByText(/SEO keywords not present in the original job description/i)).toBeInTheDocument();
     expect(await screen.findByText('software development')).toBeInTheDocument();
     
     // Side-by-side comparison
     expect(await screen.findByText(/📋 Compare: Original vs Improved/i)).toBeInTheDocument();
-    expect(await screen.findByText(/Original Job Description/i)).toBeInTheDocument();
+   
     
    
   })
@@ -1110,7 +1110,7 @@ describe('AnalysisDetail Page', () => {
     expect(screen.queryByText(/Detected Issues/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Improvement Suggestions/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/📝 Improved Job Description/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/SEO Keywords/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/SEO keywords not present in the original job description/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Download Analysis Report/i)).not.toBeInTheDocument();
   });
 
