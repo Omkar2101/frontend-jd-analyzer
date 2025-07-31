@@ -76,31 +76,66 @@ const JobList: React.FC = () => {
 
   // Fetch job listings when auth is ready
   useEffect(() => {
+    // const fetchJobs = async () => {
+    //   if (!userEmail) {
+    //     setError("Please log in to view your job listings");
+    //     return;
+    //   }
+
+    //   try {
+    //     setError(null);
+    //     const response = await axios.get(
+    //       API_ENDPOINTS.jobs.getByEmail(userEmail)
+    //     );
+    //     console.log("Fetched jobs:", response.data);
+        
+
+    //     const processedJobs = response.data.map((job: Job) => ({
+    //       ...job,
+    //       originalText: parseExtractedText(job.originalText),
+    //       // improvedText: parseExtractedText(job.improvedText),
+    //     }));
+
+    //     setJobs(processedJobs);
+    //   } catch (err) {
+    //     setError("Failed to fetch job listings");
+    //     toast.error("Error loading job listings");
+    //     console.error(err);
+    //   }
+    // };
     const fetchJobs = async () => {
-      if (!userEmail) {
-        setError("Please log in to view your job listings");
-        return;
-      }
+  if (!userEmail) {
+    setError("Please log in to view your job listings");
+    return;
+  }
 
-      try {
-        setError(null);
-        const response = await axios.get(
-          API_ENDPOINTS.jobs.getByEmail(userEmail)
-        );
+  try {
+    setError(null);
+    const response = await axios.get(
+      API_ENDPOINTS.jobs.getByEmail(userEmail)
+    );
+    console.log("Fetched jobs:", response.data);
+    
+    // Check if the response is successful and has jobs
+    if (response.data.isSuccess && response.data.jobs) {
+      const processedJobs = response.data.jobs.map((job: Job) => ({
+        ...job,
+        originalText: parseExtractedText(job.originalText),
+      }));
 
-        const processedJobs = response.data.map((job: Job) => ({
-          ...job,
-          originalText: parseExtractedText(job.originalText),
-          // improvedText: parseExtractedText(job.improvedText),
-        }));
+      setJobs(processedJobs);
+    } else {
+      // Handle the case where the API returns an error
+      setError(response.data.errorMessage || "Failed to fetch job listings");
+      setJobs([]);
+    }
+  } catch (err) {
+    setError("Failed to fetch job listings");
+    toast.error("Error loading job listings");
+    console.error(err);
+  }
+};
 
-        setJobs(processedJobs);
-      } catch (err) {
-        setError("Failed to fetch job listings");
-        toast.error("Error loading job listings");
-        console.error(err);
-      }
-    };
 
     // Only trigger fetch if auth check has finished
     if (!isLoading) {
