@@ -8,6 +8,15 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install all dependencies (build needs devDependencies)
+
+# Accept build arguments
+ARG VITE_API_BASE_URL
+
+
+# Set environment variables from build args
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
+# Install dependencies
 RUN npm ci
 
 # Copy source code
