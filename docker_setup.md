@@ -12,6 +12,13 @@ Before you begin, make sure you have:
 - Internet connection for pulling Docker images
 - Basic knowledge of terminal/command prompt
 
+## Follow this folder structure for easy setup
+JD-analyzer-system
+- jd-frontend-run
+- jd-backend-run
+- python-llm-service-run
+
+
 ## 🌐 Network Setup
 
 First, create a Docker network that will allow all services to communicate:
@@ -42,9 +49,10 @@ cd jd-frontend-run
 FRONTEND_PORT=5173
 VITE_API_BASE_URL=http://localhost:5268/api
 ```
-- Create it if its not already created
-- Just paste the below code in the compose file 
+ 
 3. Create `docker-compose.yml`:
+- Create it if its not already created
+- Just paste the below code in the compose file
 ```yaml
 version: '3.8'
 
@@ -98,7 +106,34 @@ PYTHON_API_BASE_URL=http://python-llm:8000
 PYTHON_API_TIMEOUT=30
 ```
 
-3. Create `docker-compose.yml`:
+3.Make sure the appsettings.json look like this
+```
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "backend_jd_api.Services": "Debug"
+    }
+  },
+  "AllowedHosts": "*",
+  "Database": {
+    "ConnectionString": "mongodb://mongodb:27017",
+    "DatabaseName": "JobAnalyzerDB",
+    "CollectionName": "JobDescriptions"
+  },
+  "PythonApi": {
+    "BaseUrl": "http://python-llm:8000",
+    "TimeoutSeconds": 300
+  },
+  "Files": {
+    "MaxSizeMB": 10,
+    "AllowedTypes": [".txt", ".pdf", ".doc", ".docx", ".png", ".jpg"]
+  }
+}
+```
+
+4. Create `docker-compose.yml`:
 ```yaml
 version: '3.8'
 
@@ -134,7 +169,7 @@ volumes:
   mongodb_data:
 ```
 
-4. Start the backend:
+5. Start the backend:
 ```bash
 docker-compose up -d
 ```
