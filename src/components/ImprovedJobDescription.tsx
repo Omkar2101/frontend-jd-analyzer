@@ -78,6 +78,7 @@ const ImprovedJobDescription: React.FC<ImprovedJobDescriptionProps> = ({ improve
 
     // Parse the improved text and create simple structure
     const text = improvedText;
+    console.log('Rendering improved text:', text);
     
     // Extract job title
     const titleMatch = text.match(/\*\*JOB TITLE:\*\*\s*(.+)/);
@@ -115,54 +116,66 @@ const ImprovedJobDescription: React.FC<ImprovedJobDescriptionProps> = ({ improve
     }
 
     // Process sections
+   // Process sections
     const sections = [
       { key: 'JOB SUMMARY', title: 'Job Summary' },
       { key: 'KEY RESPONSIBILITIES', title: 'Key Responsibilities' },
-      { key: 'REQUIRED QUALIFICATIONS', title: 'Required Qualifications' },
+      { key: 'OUR IDEAL CANDIDATE', title: 'Our Ideal Candidate' },
       { key: 'PREFERRED QUALIFICATIONS', title: 'Preferred Qualifications' },
       { key: 'REQUIRED SKILLS', title: 'Required Skills' },
       { key: 'WHAT WE OFFER', title: 'What We Offer' },
       { key: 'APPLICATION PROCESS', title: 'Application Process' }
     ];
 
-    sections.forEach(section => {
-      const regex = new RegExp(`\\*\\*${section.key}:\\*\\*\\s*([\\s\\S]*?)(?=\\*\\*[^*]+:\\*\\*|$)`, 'i');
-      const match = text.match(regex);
-      
-      if (match) {
-        const sectionDiv = document.createElement('div');
-        sectionDiv.className = 'simple-section';
-        sectionDiv.textContent = section.title;
-        tempDiv.appendChild(sectionDiv);
+   sections.forEach(section => {
+  // Improved regex pattern that's more flexible
+  const regex = new RegExp(`\\*\\*${section.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\\*\\*\\s*([\\s\\S]*?)(?=\\*\\*[A-Z][A-Z\\s]+:\\*\\*|$)`, 'i');
+  const match = text.match(regex);
+  
+  if (match) {
+    const sectionDiv = document.createElement('div');
+    sectionDiv.className = 'simple-section';
+    sectionDiv.textContent = section.title;
+    tempDiv.appendChild(sectionDiv);
 
-        const content = match[1].trim();
-        const lines = content.split('\n').filter(line => line.trim());
-        
-        // Check if content has bullet points
-        const hasBullets = lines.some(line => line.trim().match(/^[•\-*]/));
-        
-        if (hasBullets) {
-          const ul = document.createElement('ul');
-          ul.className = 'simple-list';
-          
-          lines.forEach(line => {
-            const trimmed = line.trim();
-            if (trimmed.match(/^[•\-*]/)) {
-              const li = document.createElement('li');
-              li.textContent = trimmed.replace(/^[•\-*]\s*/, '');
-              ul.appendChild(li);
-            }
-          });
-          
-          tempDiv.appendChild(ul);
-        } else {
-          const contentDiv = document.createElement('div');
-          contentDiv.className = 'simple-content';
-          contentDiv.textContent = content;
-          tempDiv.appendChild(contentDiv);
+    const content = match[1].trim();
+    
+    // Split content into lines and filter empty ones
+    const lines = content.split('\n').filter(line => line.trim());
+    
+    // Check if content has bullet points
+    const hasBullets = lines.some(line => line.trim().match(/^[•\-*]/));
+    
+    if (hasBullets) {
+      const ul = document.createElement('ul');
+      ul.className = 'simple-list';
+      
+      lines.forEach(line => {
+        const trimmed = line.trim();
+        if (trimmed.match(/^[•\-*]/)) {
+          const li = document.createElement('li');
+          li.textContent = trimmed.replace(/^[•\-*]\s*/, '');
+          ul.appendChild(li);
+        } else if (trimmed.length > 0) {
+          // Handle non-bullet text within bullet sections
+          const li = document.createElement('li');
+          li.textContent = trimmed;
+          ul.appendChild(li);
         }
-      }
-    });
+      });
+      
+      tempDiv.appendChild(ul);
+    } else {
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'simple-content';
+      contentDiv.textContent = content;
+      tempDiv.appendChild(contentDiv);
+    }
+  } else {
+    // Debug: Log which sections are not found
+    console.log(`Section not found: ${section.key}`);
+  }
+});
 
     return tempDiv;
   };

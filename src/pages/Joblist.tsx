@@ -1,10 +1,10 @@
-// export default JobList
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { API_ENDPOINTS } from "../utils/api";
 import { useAuth } from "../hooks/useAuth";
+import '../styles/Joblist.css';
 
 interface Job {
   id: string;
@@ -111,11 +111,11 @@ const JobList: React.FC = () => {
   // === Loading State ===
   if (isLoading) {
     return (
-      <div className="container mt-5 text-center">
-        <div className="spinner-border text-primary" role="status">
+      <div className="container loading-container">
+        <div className="spinner-border text-primary loading-spinner" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
-        <p className="mt-3">Loading your job listings...</p>
+        <p>Loading your job listings...</p>
       </div>
     );
   }
@@ -123,7 +123,7 @@ const JobList: React.FC = () => {
   // === Error State ===
   if (error) {
     return (
-      <div className="container mt-5">
+      <div className="error-container">
         <div className="alert alert-danger" role="alert">
           {error}
         </div>
@@ -141,12 +141,12 @@ const JobList: React.FC = () => {
   // === Empty State ===
   if (jobs.length === 0) {
     return (
-      <div className="container mt-5">
-        <div className="text-center">
+      <div className="container empty-state-container">
+        <div>
           <img
             src="/idea.png"
             alt="No Jobs"
-            style={{ width: "150px", marginBottom: "2rem", opacity: "0.7" }}
+            className="empty-state-image"
           />
           <h3>No Job Listings Found</h3>
           <p className="text-muted mb-4">
@@ -180,8 +180,8 @@ const JobList: React.FC = () => {
 
   // === Main UI ===
   return (
-    <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
+    <div className="job-list-container">
+      <div className="job-list-header">
         <h2>Your Job Listings</h2>
         <Link to="/" className="btn btn-primary">
           Analyze New Job
@@ -192,31 +192,13 @@ const JobList: React.FC = () => {
         {jobs.map((job) => (
           <div className="col-md-6 mb-4" key={job.id}>
             <div
-              className="card h-100 shadow-sm position-relative"
-              style={{ cursor: "pointer" }}
+              className="job-card"
               onClick={() => navigate(`/analysis/${job.id}`)}
             >
               <button
-                className="btn btn-sm position-absolute"
-                style={{
-                  top: 10,
-                  right: 10,
-                  zIndex: 2,
-                  backgroundColor: "transparent",
-                  border: "1px solid #dc3545",
-                  color: "#dc3545",
-                  transition: "all 0.2s ease",
-                }}
+                className="delete-button"
                 title="Delete job"
                 onClick={(e) => handleDelete(e, job.id)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#dc3545";
-                  e.currentTarget.style.color = "white";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "#dc3545";
-                }}
               >
                 <span aria-hidden="true">
                   <svg
@@ -238,12 +220,12 @@ const JobList: React.FC = () => {
                 </span>
               </button>
 
-              <div className="card-body">
+              <div className="job-card-content">
                 <h5 className="card-title">{job.fileName || "Untitled Job"}</h5>
                 Analysis Scores
                 {job.analysis && (
                   <div className="mb-3">
-                    <div className="d-flex gap-2 flex-wrap">
+                    <div className="score-badges">
                       <span
                         className={`badge ${getBadgeClass(
                           job.analysis.bias_score,
@@ -275,8 +257,8 @@ const JobList: React.FC = () => {
                 {/* Original Text */}
                 <div className="mb-3">
                   <h6 className="text-muted mb-2">Original Text:</h6>
-                  <div className="text-preview bg-light p-2 rounded">
-                    <p className="card-text mb-0 text-muted small">
+                  <div className="text-preview">
+                    <p className="preview-text">
                       {truncateText(job.originalText, 120)}
                     </p>
                   </div>
@@ -291,11 +273,9 @@ const JobList: React.FC = () => {
               </div>
 
               {job.createdAt && (
-                <div className="card-footer text-muted small">
+                <div className="card-timestamp">
                   <i className="fas fa-clock me-1"></i>
-                  Analyzed on {new Date(
-                    job.createdAt
-                  ).toLocaleDateString()} at{" "}
+                  Analyzed on {new Date(job.createdAt).toLocaleDateString()} at{" "}
                   {new Date(job.createdAt).toLocaleTimeString()}
                 </div>
               )}
