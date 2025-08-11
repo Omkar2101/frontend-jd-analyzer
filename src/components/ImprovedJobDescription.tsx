@@ -336,68 +336,138 @@ const ImprovedJobDescription: React.FC<ImprovedJobDescriptionProps> = ({ improve
     return 'Improved_Job_Description.pdf';
   };
 
-  // Function to parse sections more reliably
-  const parseSections = (text: string) => {
-    const sections = [
-      { key: 'JOB SUMMARY', title: 'Job Summary' },
-      { key: 'KEY RESPONSIBILITIES', title: 'Key Responsibilities' },
-      { key: 'OUR IDEAL CANDIDATE', title: 'Our Ideal Candidate' },
-      { key: 'PREFERRED QUALIFICATIONS', title: 'Preferred Qualifications' },
-      { key: 'REQUIRED SKILLS', title: 'Required Skills' },
-      { key: 'WHAT WE OFFER', title: 'What We Offer' },
-      { key: 'APPLICATION PROCESS', title: 'Application Process' }
-    ];
+  // // Function to parse sections more reliably
+  // const parseSections = (text: string) => {
+  //   const sections = [
+  //     { key: 'JOB SUMMARY', title: 'Job Summary' },
+  //     { key: 'KEY RESPONSIBILITIES', title: 'Key Responsibilities' },
+  //     { key: 'OUR IDEAL CANDIDATE', title: 'Our Ideal Candidate' },
+  //     { key: 'PREFERRED QUALIFICATIONS', title: 'Preferred Qualifications' },
+  //     { key: 'REQUIRED SKILLS', title: 'Required Skills' },
+  //     { key: 'WHAT WE OFFER', title: 'What We Offer' },
+  //     { key: 'APPLICATION PROCESS', title: 'Application Process' }
+  //   ];
 
-    const parsedSections: Array<{key: string, title: string, content: string}> = [];
+  //   const parsedSections: Array<{key: string, title: string, content: string}> = [];
 
-    sections.forEach((section, index) => {
-      try {
-        // More robust regex patterns
-        const sectionPattern = `\\*\\*${section.key}:\\*\\*`;
+  //   sections.forEach((section, index) => {
+  //     try {
+  //       // More robust regex patterns
+  //       const sectionPattern = `\\*\\*${section.key}:\\*\\*`;
         
-        // Find the current section
-        const sectionRegex = new RegExp(sectionPattern, 'gi');
-        const sectionMatch = sectionRegex.exec(text);
+  //       // Find the current section
+  //       const sectionRegex = new RegExp(sectionPattern, 'gi');
+  //       const sectionMatch = sectionRegex.exec(text);
         
-        if (sectionMatch) {
-          const startIndex = sectionMatch.index + sectionMatch[0].length;
+  //       if (sectionMatch) {
+  //         const startIndex = sectionMatch.index + sectionMatch[0].length;
           
-          // Find the next section or end of text
-          let endIndex = text.length;
+  //         // Find the next section or end of text
+  //         let endIndex = text.length;
           
-          // Look for the next section
-          for (let i = index + 1; i < sections.length; i++) {
-            const nextSectionPattern = `\\*\\*${sections[i].key}:\\*\\*`;
-            const nextSectionRegex = new RegExp(nextSectionPattern, 'gi');
-            const nextMatch = nextSectionRegex.exec(text);
+  //         // Look for the next section
+  //         for (let i = index + 1; i < sections.length; i++) {
+  //           const nextSectionPattern = `\\*\\*${sections[i].key}:\\*\\*`;
+  //           const nextSectionRegex = new RegExp(nextSectionPattern, 'gi');
+  //           const nextMatch = nextSectionRegex.exec(text);
             
-            if (nextMatch && nextMatch.index > startIndex) {
-              endIndex = nextMatch.index;
-              break;
-            }
-          }
+  //           if (nextMatch && nextMatch.index > startIndex) {
+  //             endIndex = nextMatch.index;
+  //             break;
+  //           }
+  //         }
           
-          // Extract content
-          const content = text.substring(startIndex, endIndex).trim();
+  //         // Extract content
+  //         const content = text.substring(startIndex, endIndex).trim();
           
-          if (content) {
-            parsedSections.push({
-              key: section.key,
-              title: section.title,
-              content: content
-            });
-            console.log(`✓ Found section: ${section.title} (${content.length} chars)`);
-          }
-        } else {
-          console.log(`✗ Section not found: ${section.title}`);
-        }
-      } catch (err) {
-        console.error(`Error parsing section ${section.title}:`, err);
-      }
-    });
+  //         if (content) {
+  //           parsedSections.push({
+  //             key: section.key,
+  //             title: section.title,
+  //             content: content
+  //           });
+  //           console.log(`✓ Found section: ${section.title} (${content.length} chars)`);
+  //         }
+  //       } else {
+  //         console.log(`✗ Section not found: ${section.title}`);
+  //       }
+  //     } catch (err) {
+  //       console.error(`Error parsing section ${section.title}:`, err);
+  //     }
+  //   });
 
-    return parsedSections;
-  };
+  //   return parsedSections;
+  // };
+
+  // Function to parse sections more reliably
+const parseSections = (text: string) => {
+  const sections = [
+    { key: 'JOB SUMMARY', title: 'Job Summary' },
+    { key: 'KEY RESPONSIBILITIES', title: 'Key Responsibilities' },
+    { key: 'OUR IDEAL CANDIDATE', title: 'Our Ideal Candidate' },
+    { key: 'PREFERRED QUALIFICATIONS', title: 'Preferred Qualifications' },
+    { key: 'REQUIRED SKILLS', title: 'Required Skills' },
+    { key: 'WHAT WE OFFER', title: 'What We Offer' },
+    { key: 'APPLICATION PROCESS', title: 'Application Process' }
+  ];
+
+  const parsedSections: Array<{key: string, title: string, content: string}> = [];
+
+  // Create a map of all section positions first
+  const sectionPositions: Array<{key: string, title: string, index: number}> = [];
+  
+  sections.forEach(section => {
+    const pattern = new RegExp(`\\*\\*${section.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\\*\\*`, 'i');
+    const match = text.match(pattern);
+    
+    if (match && match.index !== undefined) {
+      sectionPositions.push({
+        key: section.key,
+        title: section.title,
+        index: match.index
+      });
+    }
+  });
+
+  // Sort sections by their position in the text
+  sectionPositions.sort((a, b) => a.index - b.index);
+
+  // Extract content for each section
+  sectionPositions.forEach((section, index) => {
+    try {
+      const pattern = new RegExp(`\\*\\*${section.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\\*\\*`, 'i');
+      const match = text.match(pattern);
+      
+      if (match && match.index !== undefined) {
+        const startIndex = match.index + match[0].length;
+        
+        // Find the end index (start of next section or end of text)
+        let endIndex = text.length;
+        if (index < sectionPositions.length - 1) {
+          endIndex = sectionPositions[index + 1].index;
+        }
+        
+        // Extract and clean content
+        const content = text.substring(startIndex, endIndex).trim();
+        
+        if (content) {
+          parsedSections.push({
+            key: section.key,
+            title: section.title,
+            content: content
+          });
+          console.log(`✓ Found section: ${section.title} (${content.length} chars)`);
+          console.log(`Content preview: ${content.substring(0, 100)}...`);
+        }
+      }
+    } catch (err) {
+      console.error(`Error parsing section ${section.title}:`, err);
+    }
+  });
+
+  return parsedSections;
+};
+
 
   // Function to render simple HTML content for PDF
   const renderSimpleHtmlContent = () => {
