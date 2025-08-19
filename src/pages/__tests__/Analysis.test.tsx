@@ -543,7 +543,7 @@ describe('Analysis', () => {
     
     render(<Analysis />)
     
-    expect(screen.getByText('Improvement Suggestions for Inclusiveness and Clarity Issues')).toBeInTheDocument()
+    expect(screen.getByText('Improvement Suggestions for Inclusiveness and Clarity')).toBeInTheDocument()
     expect(screen.getByText('Category:')).toBeInTheDocument()
     expect(screen.getByText('Language')).toBeInTheDocument()
     expect(screen.getByText('Original Text:')).toBeInTheDocument()
@@ -564,5 +564,6 @@ describe('Analysis', () => {
     expect(screen.getByText('JavaScript')).toBeInTheDocument()
     expect(screen.getByText('React')).toBeInTheDocument()
     expect(screen.getByText('Node.js')).toBeInTheDocument()
+
   })
 });

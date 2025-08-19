@@ -1047,7 +1047,7 @@ describe('AnalysisDetail Page', () => {
     expect(await screen.findByText(/Gender Bias/i)).toBeInTheDocument();
     
     // Suggestions Section
-    expect(await screen.findByText(/Improvement Suggestions for Inclusiveness and Clarity Issues/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Improvement Suggestions for Inclusiveness and Clarity/i)).toBeInTheDocument();
     expect(await screen.findByText(/Original Text:/i)).toBeInTheDocument();
     expect(await screen.findByText(/Improved Version:/i)).toBeInTheDocument();
     
@@ -1160,7 +1160,7 @@ describe('AnalysisDetail Page', () => {
       </MemoryRouter>
     );
 
-    expect(await screen.findByText(/Improvement Suggestions for Inclusiveness and Clarity Issues/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Improvement Suggestions for Inclusiveness and Clarity/i)).toBeInTheDocument();
     expect(await screen.findByText(/No suggestions needed! Your job description is well-written./i)).toBeInTheDocument();
   });
 

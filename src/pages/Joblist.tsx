@@ -37,8 +37,8 @@ const JobList: React.FC = () => {
 
     if (scoreType === "bias") {
       // For bias: lower is better
-      if (percentageScore < 60) return "bg-success"; // Green - good (low bias)
-      if (percentageScore < 80) return "bg-warning"; // Yellow - medium
+      if (percentageScore <= 20) return "bg-success"; // Green - good (low bias)
+      if (percentageScore < 50) return "bg-warning"; // Yellow - medium
       return "bg-danger"; // Red - bad (high bias)
     } else {
       // For inclusivity and clarity: higher is better

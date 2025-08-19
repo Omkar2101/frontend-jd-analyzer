@@ -59,8 +59,8 @@ const Analysis: React.FC = () => {
 
   // For bias: low bias = green, high bias = red
   const getBiasScoreColor = (score: number) => {
-    if (score >= 0.8) return '#dc3545';     // High bias - Red
-    if (score >= 0.6) return '#ffc107';    // Medium bias - Yellow
+    if (score >= 0.5) return '#dc3545';     // High bias - Red
+    if (score >= 0.2) return '#ffc107';    // Medium bias - Yellow
     return '#28a745';                      // Low bias - Green
   };
 
@@ -73,8 +73,8 @@ const Analysis: React.FC = () => {
 
   // Get bias score interpretation (inverted logic)
   const getBiasScoreText = (score: number) => {
-    if (score >= 0.8) return 'High Bias';
-    if (score >= 0.6) return 'Medium Bias';
+    if (score >= 0.5) return 'High Bias';
+    if (score >= 0.2) return 'Medium Bias';
     return 'Low Bias';
   };
 
@@ -325,7 +325,7 @@ const Analysis: React.FC = () => {
           {/* Suggestions Section - NOW ALWAYS SHOWN */}
           <div className="card mb-4">
             <div className="card-header bg-info text-dark">
-              <h5 className="mb-0">Improvement Suggestions for Inclusiveness and Clarity Issues</h5>
+              <h5 className="mb-0">Improvement Suggestions for Inclusiveness and Clarity </h5>
             </div>
             <div className="card-body">
               {!result.suggestions || result.suggestions.length === 0 ? (
