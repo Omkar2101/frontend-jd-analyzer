@@ -202,7 +202,7 @@ function Home() {
           text,
           userEmail 
         }, {
-          timeout: 60000 // 60 second timeout
+          timeout: 180000 // 180 second timeout
         });
       } else if (inputMethod === 'file' && file) {
         // Show a brief loading message for file analysis
@@ -216,7 +216,7 @@ function Home() {
         formData.append("userEmail", userEmail); 
         
         res = await axios.post(API_ENDPOINTS.jobs.upload, formData, {
-          timeout: 120000, // 2 minute timeout for file uploads
+          timeout: 300000, // 5 minute timeout for file uploads
           headers: {
             'Content-Type': 'multipart/form-data',
           }
